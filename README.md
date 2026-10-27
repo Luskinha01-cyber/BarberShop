@@ -224,7 +224,7 @@ Acesse no navegador:
 | Perfil | Identificador / Login | Senha Padrão | Observações |
 | :--- | :--- | :--- | :--- |
 | **Administrador (Proprietário)** | `admin@barbershop.com` | `Admin@BarberShop2026!` | Acesso total a configurações, faturamento e agenda |
-| **Cliente de Teste** | `5511978664387` | *(Definida no cadastro)* | Pode agendar e consultar histórico |
+| **Cliente de Teste** | `5511999998888` | *(Definida no cadastro)* | Pode agendar e consultar histórico |
 
 *(Para cadastrar novos clientes, clique em **Cadastre-se** e informe seu nome e número de celular).*
 
