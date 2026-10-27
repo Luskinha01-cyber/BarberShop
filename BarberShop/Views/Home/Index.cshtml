@@ -1,0 +1,156 @@
+@{
+    ViewData["Title"] = "Barbearia Premium em São Paulo";
+    var services = ViewBag.Services as List<BarberShop.Models.Service> ?? new();
+    var barbers = ViewBag.Barbers as List<BarberShop.Models.Barber> ?? new();
+    var settings = ViewBag.Settings as BarberShop.Models.BusinessSettings ?? new();
+}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div style="max-width: 900px; margin: 0 auto;">
+        <span class="hero-badge">Estilo · Cuidado · Confiança</span>
+        <h1 class="hero-title">A Arte da Cutelaria Clássica e Visagismo Masculino</h1>
+        <p class="hero-subtitle">
+            Mais que um corte de cabelo ou barba. Um momento de descompressão, requinte e cuidado pessoal sob medida para homens que valorizam presença e sofisticação.
+        </p>
+        <div class="hero-cta">
+            <a asp-controller="Booking" asp-action="Index" class="btn-gold" style="font-size: 1.05rem; padding: 0.85rem 2.2rem;">
+                <i class="bi bi-calendar2-check"></i> Agendar Horário
+            </a>
+            <a href="#servicos" class="btn-outline-gold" style="font-size: 1.05rem; padding: 0.85rem 2rem;">
+                Conhecer Serviços
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Catálogo de Serviços -->
+<section id="servicos" class="content-section">
+    <div class="section-header">
+        <span class="section-tag">Menu Exclusivo</span>
+        <h2 class="section-title">Nossos Serviços</h2>
+        <p class="section-subtitle">Procedimentos executados por mestres barbeiros com produtos das melhores marcas mundiais.</p>
+    </div>
+
+    <div class="services-grid">
+        @foreach (var s in services)
+        {
+            <div class="service-card">
+                <div>
+                    <div class="service-card-header">
+                        <h3 class="service-name">@s.Name</h3>
+                        <span class="service-price">@s.Price.ToString("C")</span>
+                    </div>
+                    <div class="service-duration">
+                        <i class="bi bi-stopwatch"></i> Duração aproximada: @s.DurationMinutes minutos
+                    </div>
+                    <p class="service-description">@s.Description</p>
+                </div>
+                <div>
+                    <a asp-controller="Booking" asp-action="Index" asp-route-serviceId="@s.Id" class="btn-outline-gold" style="width: 100%; justify-content: center;">
+                        <i class="bi bi-calendar-plus"></i> Reservar Este Horário
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Apresentação dos Barbeiros -->
+<section id="profissionais" class="content-section" style="background-color: #171717; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); border-radius: 12px; margin-bottom: 4rem;">
+    <div class="section-header">
+        <span class="section-tag">A Equipe</span>
+        <h2 class="section-title">Nossos Especialistas</h2>
+        <p class="section-subtitle">Profissionais premiados, dedicados a traduzir sua personalidade em cada detalhe.</p>
+    </div>
+
+    <div class="services-grid">
+        @foreach (var barber in barbers)
+        {
+            <div class="service-card" style="background-color: var(--bg-primary);">
+                <div style="text-align: center; margin-bottom: 1.25rem;">
+                    <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(200, 169, 107, 0.15); border: 2px solid var(--accent-gold); display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent-gold); margin-bottom: 0.75rem;">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <h3 class="service-name" style="color: var(--accent-gold);">@barber.Name</h3>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Profissional BarberShop</span>
+                </div>
+                <p class="service-description" style="text-align: center;">@barber.Description</p>
+                <div style="text-align: center;">
+                    <a asp-controller="Booking" asp-action="Index" class="btn-gold" style="width: 100%; justify-content: center;">
+                        Agendar com @barber.Name.Split(' ')[0]
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Diferenciais -->
+<section id="sobre" class="content-section">
+    <div class="section-header">
+        <span class="section-tag">Por Que a BarberShop?</span>
+        <h2 class="section-title">A Experiência Completa</h2>
+        <p class="section-subtitle">Construímos um ambiente pensado para o seu conforto, pontualidade e tranquilidade.</p>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-box">
+            <i class="bi bi-cup-hot feature-icon"></i>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Café & Cerveja Cortesia</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Deguste cafés especiais moídos na hora ou cervejas artesanais selecionadas enquanto relaxa.</p>
+        </div>
+        <div class="feature-box">
+            <i class="bi bi-clock-history feature-icon"></i>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Pontualidade Britânica</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Respeitamos seu tempo. Sistema automatizado com prevenção de atrasos e confirmação instantânea.</p>
+        </div>
+        <div class="feature-box">
+            <i class="bi bi-award feature-icon"></i>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Visagismo Facial</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Análise geométrica facial para harmonizar corte de cabelo, barba e sobrancelha com suas feições.</p>
+        </div>
+        <div class="feature-box">
+            <i class="bi bi-whatsapp feature-icon"></i>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Notificações WhatsApp</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Receba a confirmação do seu horário e lembretes diretamente no WhatsApp sem complicação.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Horários e Localização -->
+<section id="horarios" class="content-section" style="padding-top: 1rem;">
+    <div class="info-section-grid">
+        <div class="info-card">
+            <h3><i class="bi bi-clock"></i> Horário de Atendimento</h3>
+            <ul class="info-list">
+                <li><span>Terça-feira</span> <span>@settings.OpeningTime.ToString(@"hh\:mm") às @settings.ClosingTime.ToString(@"hh\:mm")</span></li>
+                <li><span>Quarta-feira</span> <span>@settings.OpeningTime.ToString(@"hh\:mm") às @settings.ClosingTime.ToString(@"hh\:mm")</span></li>
+                <li><span>Quinta-feira</span> <span>@settings.OpeningTime.ToString(@"hh\:mm") às @settings.ClosingTime.ToString(@"hh\:mm")</span></li>
+                <li><span>Sexta-feira</span> <span>@settings.OpeningTime.ToString(@"hh\:mm") às @settings.ClosingTime.ToString(@"hh\:mm")</span></li>
+                <li><span>Sábado</span> <span>@settings.OpeningTime.ToString(@"hh\:mm") às @settings.ClosingTime.ToString(@"hh\:mm")</span></li>
+                <li><span>Domingo e Segunda</span> <span class="gold-text">Fechado</span></li>
+            </ul>
+        </div>
+
+        <div class="info-card">
+            <h3><i class="bi bi-geo-alt"></i> Localização & Contato</h3>
+            <p style="margin-bottom: 1.25rem; font-size: 0.95rem; line-height: 1.8;">
+                <strong>Endereço:</strong><br />
+                @settings.Address
+            </p>
+            <p style="margin-bottom: 1.25rem; font-size: 0.95rem; line-height: 1.8;">
+                <strong>Telefone Comercial:</strong><br />
+                <a href="tel:@settings.Phone" style="color: var(--accent-gold); text-decoration: none;">@settings.Phone</a>
+            </p>
+            <p style="font-size: 0.88rem; color: var(--text-muted);">
+                * Atendimento exclusivo mediante agendamento prévio online. Pagamento no momento do atendimento.
+            </p>
+            <div style="margin-top: 1.5rem;">
+                <a asp-controller="Booking" asp-action="Index" class="btn-gold" style="width: 100%; justify-content: center;">
+                    <i class="bi bi-calendar-check"></i> Agendar Agora
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,87 @@
+@model BarberShop.ViewModels.Account.RegisterViewModel
+@{
+    ViewData["Title"] = "Criar Conta";
+}
+
+<div class="auth-container" style="max-width: 520px;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <img src="~/images/logo-emblem.png" alt="BarberShop Emblem" style="height: 60px; margin-bottom: 1rem;" />
+        <h2 class="brand-title" style="font-size: 1.8rem; margin-bottom: 0.5rem;">Crie sua Conta</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Agende seus horários em poucos segundos</p>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="validation-summary-errors" asp-validation-summary="All"></div>
+    }
+
+    <form asp-action="Register" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="form-group">
+            <label asp-for="FullName" class="form-label">
+                <i class="bi bi-person gold-text"></i> Nome Completo
+            </label>
+            <input asp-for="FullName" class="form-control" placeholder="Seu nome e sobrenome" autofocus />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="PhoneNumber" class="form-label">
+                <i class="bi bi-whatsapp gold-text"></i> Celular com DDD (Login)
+            </label>
+            <input asp-for="PhoneNumber" class="form-control" type="tel" placeholder="(11) 98765-4321" />
+            <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 0.25rem;">
+                Utilizado para acessar sua conta e receber as notificações do agendamento.
+            </small>
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Password" class="form-label">
+                <i class="bi bi-lock gold-text"></i> Senha
+            </label>
+            <input asp-for="Password" class="form-control" type="password" placeholder="No mínimo 6 caracteres" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ConfirmPassword" class="form-label">
+                <i class="bi bi-shield-lock gold-text"></i> Confirmar Senha
+            </label>
+            <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="Digite a mesma senha" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+
+        <div class="form-check">
+            <input asp-for="AcceptTerms" type="checkbox" id="chkTerms" />
+            <label for="chkTerms">
+                Li e aceito os <a asp-controller="Home" asp-action="Terms" target="_blank" class="gold-text">Termos de Uso</a> da BarberShop.
+            </label>
+        </div>
+        <span asp-validation-for="AcceptTerms" class="text-danger"></span>
+
+        <div class="form-check">
+            <input asp-for="AcceptPrivacy" type="checkbox" id="chkPrivacy" />
+            <label for="chkPrivacy">
+                Concordo com a <a asp-controller="Home" asp-action="Privacy" target="_blank" class="gold-text">Política de Privacidade</a> (LGPD).
+            </label>
+        </div>
+        <span asp-validation-for="AcceptPrivacy" class="text-danger"></span>
+
+        <div class="form-check" style="background: rgba(200, 169, 107, 0.08); padding: 0.85rem; border-radius: 6px; border: 1px dashed var(--border-color);">
+            <input asp-for="WhatsAppConsent" type="checkbox" id="chkWa" />
+            <label for="chkWa" style="color: var(--text-light); font-size: 0.88rem;">
+                <i class="bi bi-whatsapp gold-text"></i> Desejo receber confirmações, lembretes e avisos do meu agendamento diretamente no meu WhatsApp.
+            </label>
+        </div>
+
+        <button type="submit" class="btn-gold" style="width: 100%; justify-content: center; margin-top: 1.5rem; font-size: 1rem; padding: 0.8rem;">
+            <i class="bi bi-check2-circle"></i> Concluir Cadastro
+        </button>
+
+        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">
+            Já possui cadastro? <a asp-action="Login" class="gold-text" style="text-decoration: none; font-weight: 600;">Entrar agora</a>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,230 @@
+@model BarberShop.Models.BusinessSettings
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Configurações da Barbearia";
+    var notifications = ViewBag.Notifications as List<BarberShop.Models.WhatsAppNotification> ?? new();
+}
+
+<div style="margin-bottom: 2rem;">
+    <h1 class="brand-title gold-text" style="font-size: 1.8rem;">Configurações & Integração WhatsApp</h1>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">
+        Defina os parâmetros operacionais da barbearia, regras de agendamento e credenciais da Meta Cloud API
+    </p>
+</div>
+
+<form asp-action="Update" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <!-- 1. Informações Institucionais e Endereço -->
+    <div class="summary-card" style="margin-bottom: 2rem;">
+        <h3 class="gold-text" style="font-size: 1.25rem; margin-bottom: 1.25rem;">
+            <i class="bi bi-shop"></i> 1. Dados Comerciais da Barbearia
+        </h3>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem;">
+            <div class="form-group">
+                <label asp-for="ShopName" class="form-label">Nome da Barbearia</label>
+                <input asp-for="ShopName" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label asp-for="Phone" class="form-label">Telefone Comercial / WhatsApp</label>
+                <input asp-for="Phone" class="form-control" required />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Address" class="form-label">Endereço Completo</label>
+            <input asp-for="Address" class="form-control" required />
+        </div>
+    </div>
+
+    <!-- 2. Regras de Expediente e Agendamento -->
+    <div class="summary-card" style="margin-bottom: 2rem;">
+        <h3 class="gold-text" style="font-size: 1.25rem; margin-bottom: 1.25rem;">
+            <i class="bi bi-clock-history"></i> 2. Parâmetros de Expediente e Horários
+        </h3>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+            <div class="form-group">
+                <label asp-for="OpeningTime" class="form-label">Horário de Abertura</label>
+                <input asp-for="OpeningTime" class="form-control" type="time" required />
+            </div>
+            <div class="form-group">
+                <label asp-for="ClosingTime" class="form-label">Horário de Fechamento</label>
+                <input asp-for="ClosingTime" class="form-control" type="time" required />
+            </div>
+            <div class="form-group">
+                <label asp-for="SlotIntervalMinutes" class="form-label">Passo da Grade (Minutos)</label>
+                <select asp-for="SlotIntervalMinutes" class="form-control">
+                    <option value="15">A cada 15 minutos</option>
+                    <option value="30">A cada 30 minutos</option>
+                    <option value="60">A cada 60 minutos</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="BufferMinutes" class="form-label">Tempo de Limpeza entre Clientes (Minutos)</label>
+                <input asp-for="BufferMinutes" class="form-control" type="number" min="0" max="60" />
+            </div>
+            <div class="form-group">
+                <label asp-for="MinimumNoticeHours" class="form-label">Antecedência Mínima para Agendar (Horas)</label>
+                <input asp-for="MinimumNoticeHours" class="form-control" type="number" min="0" max="48" />
+            </div>
+            <div class="form-group">
+                <label asp-for="CancellationNoticeHours" class="form-label">Prazo Mínimo para Cancelar (Horas)</label>
+                <input asp-for="CancellationNoticeHours" class="form-control" type="number" min="0" max="48" />
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Integração com WhatsApp Business Cloud API -->
+    <div class="summary-card" style="margin-bottom: 2rem; border-color: rgba(200, 169, 107, 0.4);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1.25rem;">
+            <h3 class="gold-text" style="font-size: 1.25rem; margin: 0;">
+                <i class="bi bi-whatsapp"></i> 3. WhatsApp Business Cloud API (Oficial)
+            </h3>
+            <span class="badge @(Model.EnableWhatsAppSimulation ? "badge-warning" : "badge-success")" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">
+                @(Model.EnableWhatsAppSimulation ? "Modo Simulação Local Ativo" : "Integração Meta Oficial Ativa")
+            </span>
+        </div>
+
+        <div class="form-check" style="background: rgba(200, 169, 107, 0.08); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
+            <input asp-for="EnableWhatsAppNotifications" type="checkbox" id="chkEnableWa" />
+            <label for="chkEnableWa" style="color: var(--text-light); font-weight: 600;">
+                Habilitar envio automático de mensagens transacionais no agendamento, cancelamento e reagendamento
+            </label>
+        </div>
+
+        <div class="form-check" style="background: rgba(255, 179, 0, 0.08); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid rgba(255, 179, 0, 0.3);">
+            <input asp-for="EnableWhatsAppSimulation" type="checkbox" id="chkSim" />
+            <label for="chkSim" style="color: var(--text-light);">
+                <strong>Modo de Simulação Local (Sem credenciais da Meta):</strong><br />
+                <span style="color: var(--text-muted); font-size: 0.85rem;">
+                    Quando marcado, as mensagens são registradas com sucesso no banco de dados e console local sem requisição à Meta, ideal para desenvolvimento. Desmarque para disparos reais via WhatsApp Cloud API.
+                </span>
+            </label>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem;">
+            <div class="form-group">
+                <label asp-for="MetaPhoneNumberId" class="form-label">Phone Number ID (Meta Developer)</label>
+                <input asp-for="MetaPhoneNumberId" class="form-control" placeholder="Ex: 104598239012345" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MetaBusinessAccountId" class="form-label">WhatsApp Business Account ID (WABA)</label>
+                <input asp-for="MetaBusinessAccountId" class="form-control" placeholder="Ex: 109283019283019" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MetaApiVersion" class="form-label">Versão da Graph API</label>
+                <input asp-for="MetaApiVersion" class="form-control" placeholder="v21.0" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="WebhookVerifyToken" class="form-label">Token de Verificação do Webhook</label>
+                <input asp-for="WebhookVerifyToken" class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="MetaAccessToken" class="form-label">Access Token Permanente (Meta Cloud API)</label>
+            <input asp-for="MetaAccessToken" class="form-control" type="password" placeholder="EAABw..." />
+            <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                Armazenado no banco de forma restrita e nunca exposto aos clientes.
+            </small>
+        </div>
+    </div>
+
+    <div style="text-align: right; margin-bottom: 3rem;">
+        <button type="submit" class="btn-gold" style="padding: 0.85rem 2.5rem; font-size: 1rem;">
+            <i class="bi bi-check2-circle"></i> Salvar Todas as Configurações
+        </button>
+    </div>
+</form>
+
+<!-- Histórico e Auditoria de Disparos WhatsApp -->
+<div class="data-table-container">
+    <div class="table-header-bar">
+        <h3 class="gold-text" style="font-size: 1.15rem; margin: 0;">
+            <i class="bi bi-clock-history"></i> Log de Notificações do WhatsApp (Últimos 50 Disparos)
+        </h3>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Data & Hora</th>
+                    <th>Destinatário</th>
+                    <th>Tipo</th>
+                    <th>Status</th>
+                    <th>Modo</th>
+                    <th>ID Mensagem Meta</th>
+                    <th>Detalhes / Erro</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!notifications.Any())
+                {
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                            Nenhum registro de notificação gerado até o momento.
+                        </td>
+                    </tr>
+                }
+                @foreach (var n in notifications)
+                {
+                    <tr>
+                        <td>@n.AttemptedAt.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        <td><strong>@n.RecipientPhone</strong></td>
+                        <td>@n.Type</td>
+                        <td>
+                            @switch (n.Status)
+                            {
+                                case BarberShop.Models.Enums.NotificationStatus.Simulated:
+                                    <span class="badge badge-gold">Simulada</span>
+                                    break;
+                                case BarberShop.Models.Enums.NotificationStatus.AcceptedByApi:
+                                    <span class="badge badge-success">Aceita pela API</span>
+                                    break;
+                                case BarberShop.Models.Enums.NotificationStatus.Delivered:
+                                    <span class="badge badge-success">Entregue</span>
+                                    break;
+                                case BarberShop.Models.Enums.NotificationStatus.Pending:
+                                    <span class="badge badge-warning">Pendente</span>
+                                    break;
+                                case BarberShop.Models.Enums.NotificationStatus.Failed:
+                                    <span class="badge badge-danger">Falha</span>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            @if (n.IsSimulated)
+                            {
+                                <span style="font-size: 0.78rem; color: var(--accent-gold);">Simulação Local</span>
+                            }
+                            else
+                            {
+                                <span style="font-size: 0.78rem; color: #81C784;">API Real</span>
+                            }
+                        </td>
+                        <td><small style="color: var(--text-muted);">@(n.MetaMessageId ?? "-")</small></td>
+                        <td style="max-width: 280px; font-size: 0.82rem; color: var(--text-muted);">
+                            @(n.ErrorDescription ?? "Processada com sucesso.")
+                        </td>
+                        <td>
+                            <form asp-action="RetryNotification" asp-route-id="@n.Id" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn-outline-gold" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" title="Tentar Novamente">
+                                    <i class="bi bi-arrow-clockwise"></i> Reenviar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

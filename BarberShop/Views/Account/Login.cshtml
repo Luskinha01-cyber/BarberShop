@@ -1,0 +1,53 @@
+@model BarberShop.ViewModels.Account.LoginViewModel
+@{
+    ViewData["Title"] = "Acessar Conta";
+}
+
+<div class="auth-container">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <img src="~/images/logo-emblem.png" alt="BarberShop Emblem" style="height: 60px; margin-bottom: 1rem;" />
+        <h2 class="brand-title" style="font-size: 1.8rem; margin-bottom: 0.5rem;">Bem-vindo</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Informe seu número de celular ou e-mail de acesso</p>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="validation-summary-errors" asp-validation-summary="All"></div>
+    }
+
+    <form asp-action="Login" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="ReturnUrl" />
+
+        <div class="form-group">
+            <label asp-for="Identifier" class="form-label">
+                <i class="bi bi-phone gold-text"></i> Celular (ou E-mail do Administrador)
+            </label>
+            <input asp-for="Identifier" class="form-control" placeholder="(11) 98765-4321 ou admin@barbershop.com" autofocus autocomplete="username" />
+            <span asp-validation-for="Identifier" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Password" class="form-label">
+                <i class="bi bi-lock gold-text"></i> Senha
+            </label>
+            <input asp-for="Password" class="form-control" type="password" placeholder="••••••••" autocomplete="current-password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-check" style="justify-content: space-between;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input asp-for="RememberMe" type="checkbox" />
+                <span>Lembrar de mim</span>
+            </label>
+        </div>
+
+        <button type="submit" class="btn-gold" style="width: 100%; justify-content: center; margin-top: 1rem; font-size: 1rem; padding: 0.8rem;">
+            <i class="bi bi-box-arrow-in-right"></i> Entrar na BarberShop
+        </button>
+
+        <div style="text-align: center; margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted);">
+            Ainda não tem uma conta? <a asp-action="Register" class="gold-text" style="text-decoration: none; font-weight: 600;">Cadastre-se</a>
+        </div>
+    </form>
+</div>

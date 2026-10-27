@@ -1,0 +1,203 @@
+@model BarberShop.ViewModels.Admin.AdminDashboardViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+    <div>
+        <h1 class="brand-title gold-text" style="font-size: 1.8rem;">Visão Geral da Barbearia</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Métricas de desempenho, atendimentos e faturamento</p>
+    </div>
+
+    <!-- Filtro de Período -->
+    <div style="display: flex; gap: 0.5rem; background: var(--bg-card); padding: 0.35rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
+        <a asp-action="Index" asp-route-period="today" class="btn-outline-gold @(Model.PeriodFilter == "today" ? "btn-gold" : "")" style="padding: 0.4rem 0.9rem; font-size: 0.82rem;">Hoje</a>
+        <a asp-action="Index" asp-route-period="week" class="btn-outline-gold @(Model.PeriodFilter == "week" ? "btn-gold" : "")" style="padding: 0.4rem 0.9rem; font-size: 0.82rem;">Semana</a>
+        <a asp-action="Index" asp-route-period="month" class="btn-outline-gold @(Model.PeriodFilter == "month" ? "btn-gold" : "")" style="padding: 0.4rem 0.9rem; font-size: 0.82rem;">Mês</a>
+        <a asp-action="Index" asp-route-period="year" class="btn-outline-gold @(Model.PeriodFilter == "year" ? "btn-gold" : "")" style="padding: 0.4rem 0.9rem; font-size: 0.82rem;">Ano</a>
+    </div>
+</div>
+
+<!-- Grid de KPIs -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-info">
+            <h4>Agendamentos Hoje</h4>
+            <div class="kpi-value gold-text">@Model.TodayAppointmentsCount</div>
+        </div>
+        <div class="kpi-icon"><i class="bi bi-calendar-event"></i></div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-info">
+            <h4>Próximos em Aberto</h4>
+            <div class="kpi-value">@Model.UpcomingAppointmentsCount</div>
+        </div>
+        <div class="kpi-icon"><i class="bi bi-clock-history"></i></div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-info">
+            <h4>Concluídos (Período)</h4>
+            <div class="kpi-value" style="color: #81C784;">@Model.CompletedAppointmentsCount</div>
+        </div>
+        <div class="kpi-icon"><i class="bi bi-check2-circle"></i></div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-info">
+            <h4>Cancelados (Período)</h4>
+            <div class="kpi-value" style="color: #E57373;">@Model.CancelledAppointmentsCount</div>
+        </div>
+        <div class="kpi-icon"><i class="bi bi-x-circle"></i></div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-info">
+            <h4>Clientes Registrados</h4>
+            <div class="kpi-value">@Model.TotalClientsCount</div>
+        </div>
+        <div class="kpi-icon"><i class="bi bi-people"></i></div>
+    </div>
+
+    <div class="kpi-card">
+        <div class="kpi-info">
+            <h4>Faturamento Estimado</h4>
+            <div class="kpi-value gold-text" style="font-size: 1.4rem;">@Model.EstimatedRevenue.ToString("C")</div>
+            <small style="color: var(--text-muted); font-size: 0.72rem;">Soma de agendamentos</small>
+        </div>
+        <div class="kpi-icon"><i class="bi bi-graph-up"></i></div>
+    </div>
+
+    <div class="kpi-card" style="border-color: rgba(56, 142, 60, 0.4);">
+        <div class="kpi-info">
+            <h4>Pagamentos Recebidos</h4>
+            <div class="kpi-value" style="color: #81C784; font-size: 1.4rem;">@Model.ReceivedRevenue.ToString("C")</div>
+            <small style="color: var(--text-muted); font-size: 0.72rem;">Efetivamente recebidos</small>
+        </div>
+        <div class="kpi-icon" style="color: #81C784;"><i class="bi bi-cash-stack"></i></div>
+    </div>
+</div>
+
+<!-- Seção Dupla: Top Serviços e Agendamentos por Barbeiro -->
+<div class="info-section-grid" style="margin-bottom: 2.5rem;">
+    <!-- Top Serviços -->
+    <div class="info-card">
+        <h3><i class="bi bi-trophy"></i> Serviços Mais Solicitados</h3>
+        <ul class="info-list">
+            @if (!Model.TopServices.Any())
+            {
+                <li style="color: var(--text-muted); padding: 1rem 0;">Nenhum atendimento registrado no período.</li>
+            }
+            @foreach (var s in Model.TopServices)
+            {
+                <li>
+                    <span><strong>@s.ServiceName</strong> (@s.Count atendimentos)</span>
+                    <span class="gold-text">@s.TotalValue.ToString("C")</span>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <!-- Atendimentos por Barbeiro -->
+    <div class="info-card">
+        <h3><i class="bi bi-person-lines-fill"></i> Atendimentos por Barbeiro</h3>
+        <ul class="info-list">
+            @if (!Model.AppointmentsByBarber.Any())
+            {
+                <li style="color: var(--text-muted); padding: 1rem 0;">Nenhum atendimento registrado no período.</li>
+            }
+            @foreach (var b in Model.AppointmentsByBarber)
+            {
+                <li>
+                    <span><strong>@b.BarberName</strong> (@b.Count agendamentos)</span>
+                    <span class="gold-text">@b.TotalValue.ToString("C")</span>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+<!-- Últimos Agendamentos -->
+<div class="data-table-container">
+    <div class="table-header-bar">
+        <h3 class="gold-text" style="font-size: 1.15rem; margin: 0;"><i class="bi bi-calendar-check"></i> Agendamentos Recentes</h3>
+        <a asp-controller="Appointments" asp-action="Index" class="btn-outline-gold" style="padding: 0.4rem 0.9rem; font-size: 0.82rem;">
+            Ver Todos os Agendamentos <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Data & Horário</th>
+                    <th>Cliente</th>
+                    <th>Telefone</th>
+                    <th>Serviço</th>
+                    <th>Barbeiro</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                    <th>Pagamento</th>
+                    <th>WhatsApp</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.RecentAppointments.Any())
+                {
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                            Nenhum agendamento recente.
+                        </td>
+                    </tr>
+                }
+                @foreach (var a in Model.RecentAppointments)
+                {
+                    <tr>
+                        <td>
+                            <strong>@a.StartTime.ToString("dd/MM/yyyy")</strong><br />
+                            <small style="color: var(--text-muted);">@a.StartTime.ToString("HH:mm") às @a.EndTime.ToString("HH:mm")</small>
+                        </td>
+                        <td><strong>@a.ClientName</strong></td>
+                        <td>@a.ClientPhone</td>
+                        <td>@a.ServiceName</td>
+                        <td>@a.BarberName</td>
+                        <td class="gold-text">@a.Price.ToString("C")</td>
+                        <td>
+                            @switch (a.Status)
+                            {
+                                case AppointmentStatus.Confirmed:
+                                    <span class="badge badge-success">Confirmado</span>
+                                    break;
+                                case AppointmentStatus.Completed:
+                                    <span class="badge badge-gold">Concluído</span>
+                                    break;
+                                case AppointmentStatus.CancelledByClient:
+                                case AppointmentStatus.CancelledByAdmin:
+                                    <span class="badge badge-danger">Cancelado</span>
+                                    break;
+                                case AppointmentStatus.NoShow:
+                                    <span class="badge badge-warning">Ausente</span>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            @if (a.PaymentStatus == PaymentStatus.Paid)
+                            {
+                                <span class="badge badge-success">Recebido</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-warning">Pendente</span>
+                            }
+                        </td>
+                        <td>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">@a.WhatsAppStatus</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,86 @@
+@model BarberShop.ViewModels.Admin.ManualAppointmentViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Novo Agendamento Manual";
+    var clients = ViewBag.Clients as List<BarberShop.Models.ApplicationUser> ?? new();
+    var barbers = ViewBag.Barbers as List<BarberShop.Models.Barber> ?? new();
+    var services = ViewBag.Services as List<BarberShop.Models.Service> ?? new();
+}
+
+<div class="auth-container" style="max-width: 600px; margin: 2rem auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 class="brand-title gold-text" style="font-size: 1.5rem;"><i class="bi bi-calendar-plus"></i> Novo Agendamento</h2>
+        <a asp-action="Index" class="btn-outline-gold" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="validation-summary-errors" asp-validation-summary="All"></div>
+    }
+
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="form-group">
+            <label asp-for="ClientId" class="form-label">Cliente</label>
+            <select asp-for="ClientId" class="form-control" required>
+                <option value="">Selecione o cliente cadastrado...</option>
+                @foreach (var c in clients)
+                {
+                    <option value="@c.Id">@c.FullName (@c.PhoneNumber)</option>
+                }
+            </select>
+            <span asp-validation-for="ClientId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="BarberId" class="form-label">Profissional Responsável</label>
+            <select asp-for="BarberId" class="form-control" required>
+                <option value="">Selecione o barbeiro...</option>
+                @foreach (var b in barbers)
+                {
+                    <option value="@b.Id">@b.Name</option>
+                }
+            </select>
+            <span asp-validation-for="BarberId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ServiceId" class="form-label">Serviço</label>
+            <select asp-for="ServiceId" class="form-control" required>
+                <option value="">Selecione o serviço...</option>
+                @foreach (var s in services)
+                {
+                    <option value="@s.Id">@s.Name - @s.Price.ToString("C") (@s.DurationMinutes min)</option>
+                }
+            </select>
+            <span asp-validation-for="ServiceId" class="text-danger"></span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label asp-for="Date" class="form-label">Data</label>
+                <input asp-for="Date" class="form-control" type="date" required />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="StartTime" class="form-label">Horário de Início</label>
+                <input asp-for="StartTime" class="form-control" type="time" required />
+                <span asp-validation-for="StartTime" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Notes" class="form-label">Observações Administrativas (Opcional)</label>
+            <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Ex: Cliente agendou por WhatsApp ou balcão..."></textarea>
+            <span asp-validation-for="Notes" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn-gold" style="width: 100%; justify-content: center; padding: 0.85rem; margin-top: 1rem;">
+            <i class="bi bi-check2-circle"></i> Confirmar Agendamento Manual
+        </button>
+    </form>
+</div>

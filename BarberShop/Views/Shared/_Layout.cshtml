@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BarberShop Premium</title>
+    <!-- Favicon / Ícone da Aba em Alta Definição (SVG Vetorial + PNGs Otimizados) -->
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" asp-append-version="true" />
+    <link rel="icon" type="image/png" sizes="32x32" href="~/favicon-32x32.png" asp-append-version="true" />
+    <link rel="icon" type="image/png" sizes="16x16" href="~/favicon-16x16.png" asp-append-version="true" />
+    <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" asp-append-version="true" />
+    <link rel="apple-touch-icon" sizes="180x180" href="~/apple-touch-icon.png" asp-append-version="true" />
+    <link rel="manifest" href="~/site.webmanifest" />
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <!-- CSS Customizado -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="luxury-navbar">
+            <a class="nav-brand" asp-controller="Home" asp-action="Index">
+                <img src="~/images/logo.png" alt="BarberShop Logo" class="nav-logo" />
+            </a>
+
+            <ul class="nav-links">
+                <li><a asp-controller="Home" asp-action="Index"><i class="bi bi-house-door"></i> Início</a></li>
+                <li><a href="/#servicos"><i class="bi bi-scissors"></i> Serviços</a></li>
+                <li><a href="/#sobre"><i class="bi bi-info-circle"></i> Sobre</a></li>
+                <li><a href="/#horarios"><i class="bi bi-clock"></i> Horários</a></li>
+                <li><a asp-controller="Booking" asp-action="Index" class="gold-text"><i class="bi bi-calendar-check"></i> Agendar</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-controller="Dashboard" asp-action="Index" class="btn-outline-gold">
+                            <i class="bi bi-shield-lock"></i> Painel Admin
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Client" asp-action="Index" class="btn-outline-gold">
+                            <i class="bi bi-person-circle"></i> Meus Agendamentos
+                        </a>
+                    }
+                    <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn-outline-gold" title="Sair da conta">
+                            <i class="bi bi-box-arrow-right"></i>
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn-outline-gold">
+                        <i class="bi bi-person"></i> Entrar
+                    </a>
+                    <a asp-controller="Account" asp-action="Register" class="btn-gold">
+                        Cadastre-se
+                    </a>
+                }
+            </div>
+        </nav>
+    </header>
+
+    <div class="main-wrapper">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert-box alert-success" style="max-width: 1200px; margin: 1.5rem auto 0; padding: 1rem;">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>@TempData["SuccessMessage"]</span>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert-box alert-error" style="max-width: 1200px; margin: 1.5rem auto 0; padding: 1rem;">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>@TempData["ErrorMessage"]</span>
+            </div>
+        }
+
+        @RenderBody()
+    </div>
+
+    <footer class="luxury-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <img src="~/images/logo.png" alt="BarberShop" style="height: 48px; object-fit: contain;" />
+                <p>Estilo, Cuidado e Confiança. A experiência definitiva em barbearia clássica e visagismo masculino.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Navegação</h4>
+                <ul>
+                    <li><a asp-controller="Home" asp-action="Index">Início</a></li>
+                    <li><a href="/#servicos">Serviços</a></li>
+                    <li><a asp-controller="Booking" asp-action="Index">Agendar Horário</a></li>
+                    <li><a asp-controller="Account" asp-action="Login">Acessar Conta</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Informações</h4>
+                <ul>
+                    <li><a asp-controller="Home" asp-action="Privacy">Política de Privacidade</a></li>
+                    <li><a asp-controller="Home" asp-action="Terms">Termos de Uso</a></li>
+                    <li><span class="gold-text"><i class="bi bi-whatsapp"></i> Notificações WhatsApp</span></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Contato</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.7;">
+                    <i class="bi bi-geo-alt gold-text"></i> Av. Paulista, 1000 - Jardins<br />
+                    <i class="bi bi-telephone gold-text"></i> +55 (11) 98765-4321<br />
+                    <i class="bi bi-clock gold-text"></i> Terça a Sábado: 09h às 19h
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; @DateTime.Now.Year BarberShop. Todos os direitos reservados. Pagamentos realizados presencialmente.</p>
+        </div>
+    </footer>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

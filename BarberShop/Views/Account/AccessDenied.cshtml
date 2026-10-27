@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "Acesso Negado";
+}
+
+<div class="auth-container" style="text-align: center; max-width: 500px;">
+    <div style="font-size: 3.5rem; color: var(--danger); margin-bottom: 1rem;">
+        <i class="bi bi-shield-x"></i>
+    </div>
+    <h2 class="brand-title" style="margin-bottom: 0.5rem;">Acesso Não Autorizado</h2>
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">
+        Você não possui as permissões administrativas necessárias para acessar este recurso.
+    </p>
+    <a asp-controller="Home" asp-action="Index" class="btn-gold">
+        <i class="bi bi-house"></i> Voltar à Página Inicial
+    </a>
+</div>

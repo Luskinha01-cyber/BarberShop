@@ -1,0 +1,303 @@
+@model BarberShop.ViewModels.Client.ClientDashboardViewModel
+@{
+    ViewData["Title"] = "Área do Cliente";
+}
+
+<div class="content-section" style="max-width: 1100px;">
+    <!-- Boas-vindas -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 1.5rem;">
+        <div>
+            <span class="section-tag">Painel do Cliente</span>
+            <h1 class="brand-title" style="font-size: 2rem;">Olá, @Model.ClientName</h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">
+                <i class="bi bi-phone"></i> @Model.ClientPhone &nbsp;|&nbsp;
+                <i class="bi bi-whatsapp gold-text"></i> Notificações WhatsApp: @(Model.WhatsAppConsent ? "Ativas" : "Desativadas")
+            </p>
+        </div>
+        <div>
+            <a asp-controller="Booking" asp-action="Index" class="btn-gold" style="font-size: 0.95rem; padding: 0.75rem 1.6rem;">
+                <i class="bi bi-calendar-plus"></i> Novo Agendamento
+            </a>
+        </div>
+    </div>
+
+    <!-- Próximo Agendamento -->
+    <div style="margin-bottom: 3.5rem;">
+        <h3 class="gold-text" style="font-size: 1.3rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-alarm"></i> Seu Próximo Atendimento
+        </h3>
+
+        @if (Model.NextAppointment != null)
+        {
+            var next = Model.NextAppointment;
+            <div class="summary-card" style="border: 2px solid var(--accent-gold); background: linear-gradient(180deg, rgba(200,169,107,0.08) 0%, var(--bg-card) 100%);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <span class="badge badge-success" style="font-size: 0.85rem; padding: 0.35rem 0.8rem; margin-bottom: 0.5rem;">Confirmado</span>
+                        <h2 class="brand-title gold-text" style="font-size: 1.6rem;">@next.ServiceName</h2>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">
+                            <i class="bi bi-person-badge"></i> Barbeiro: <strong>@next.BarberName</strong> &nbsp;|&nbsp;
+                            <i class="bi bi-clock"></i> Duração: @next.DurationMinutes min
+                        </span>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted); display: block;">Valor Presencial</span>
+                        <span style="font-size: 1.6rem; font-weight: 700; color: var(--accent-gold);">@next.Price.ToString("C")</span>
+                    </div>
+                </div>
+
+                <div class="info-section-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 1.5rem; gap: 1rem;">
+                    <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
+                        <span style="font-size: 0.8rem; color: var(--text-muted); display: block;"><i class="bi bi-calendar-event gold-text"></i> Data</span>
+                        <strong style="font-size: 1.05rem;">@next.StartTime.ToString("dd/MM/yyyy (dddd)")</strong>
+                    </div>
+                    <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
+                        <span style="font-size: 0.8rem; color: var(--text-muted); display: block;"><i class="bi bi-clock gold-text"></i> Horário</span>
+                        <strong style="font-size: 1.05rem;">@next.StartTime.ToString("HH:mm") às @next.EndTime.ToString("HH:mm")</strong>
+                    </div>
+                    <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
+                        <span style="font-size: 0.8rem; color: var(--text-muted); display: block;"><i class="bi bi-whatsapp gold-text"></i> Notificação</span>
+                        <strong style="font-size: 1.05rem;">@next.WhatsAppStatus</strong>
+                    </div>
+                </div>
+
+                <!-- Ações do Próximo Agendamento -->
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    @if (next.CanReschedule)
+                    {
+                        <button type="button" class="btn-outline-gold" onclick="openRescheduleModal('@next.Id', '@next.ServiceName', '@next.BarberName', '@next.StartTime.ToString("yyyy-MM-dd")', '@next.StartTime.ToString("HH:mm")')">
+                            <i class="bi bi-arrow-repeat"></i> Reagendar Horário
+                        </button>
+                    }
+                    @if (next.CanCancel)
+                    {
+                        <form asp-action="Cancel" method="post" onsubmit="return confirmAction('Tem certeza que deseja cancelar este agendamento? O horário será liberado no sistema.');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@next.Id" />
+                            <button type="submit" class="btn-danger">
+                                <i class="bi bi-x-circle"></i> Cancelar Agendamento
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div style="background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: 10px; padding: 2.5rem; text-align: center;">
+                <i class="bi bi-calendar2-check" style="font-size: 2.5rem; color: var(--accent-gold); margin-bottom: 0.8rem; display: block;"></i>
+                <h4 style="margin-bottom: 0.5rem;">Nenhum agendamento futuro em aberto</h4>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Você não tem atendimentos agendados no momento.</p>
+                <a asp-controller="Booking" asp-action="Index" class="btn-gold">
+                    <i class="bi bi-plus-lg"></i> Agendar um Horário Agora
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- Histórico Completo de Agendamentos -->
+    <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+            <h3 class="gold-text" style="font-size: 1.3rem;"><i class="bi bi-clock-history"></i> Histórico de Reservas</h3>
+            
+            <!-- Filtros -->
+            <form method="get" class="filter-bar" style="margin-bottom: 0;">
+                <select name="status" class="form-control" onchange="this.form.submit()">
+                    <option value="">Todos os status</option>
+                    <option value="Confirmed" selected="@(Model.SelectedStatus == "Confirmed")">Confirmados</option>
+                    <option value="Completed" selected="@(Model.SelectedStatus == "Completed")">Concluídos</option>
+                    <option value="CancelledByClient" selected="@(Model.SelectedStatus == "CancelledByClient")">Cancelados</option>
+                </select>
+                <select name="period" class="form-control" onchange="this.form.submit()">
+                    <option value="">Todo o período</option>
+                    <option value="future" selected="@(Model.SelectedPeriod == "future")">Futuros</option>
+                    <option value="past" selected="@(Model.SelectedPeriod == "past")">Passados</option>
+                    <option value="last30" selected="@(Model.SelectedPeriod == "last30")">Últimos 30 dias</option>
+                </select>
+            </form>
+        </div>
+
+        <div class="data-table-container">
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Data & Horário</th>
+                            <th>Serviço</th>
+                            <th>Profissional</th>
+                            <th>Valor Registrado</th>
+                            <th>Status</th>
+                            <th>WhatsApp</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.History.Any())
+                        {
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                                    Nenhum agendamento encontrado para os filtros selecionados.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var item in Model.History)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@item.StartTime.ToString("dd/MM/yyyy")</strong><br />
+                                    <span style="color: var(--text-muted); font-size: 0.85rem;">@item.StartTime.ToString("HH:mm") às @item.EndTime.ToString("HH:mm")</span>
+                                </td>
+                                <td><strong>@item.ServiceName</strong></td>
+                                <td>@item.BarberName</td>
+                                <td class="gold-text"><strong>@item.Price.ToString("C")</strong></td>
+                                <td>
+                                    @switch (item.Status)
+                                    {
+                                        case AppointmentStatus.Confirmed:
+                                            <span class="badge badge-success">Confirmado</span>
+                                            break;
+                                        case AppointmentStatus.Completed:
+                                            <span class="badge badge-gold">Concluído</span>
+                                            break;
+                                        case AppointmentStatus.CancelledByClient:
+                                        case AppointmentStatus.CancelledByAdmin:
+                                            <span class="badge badge-danger">Cancelado</span>
+                                            break;
+                                        case AppointmentStatus.NoShow:
+                                            <span class="badge badge-warning">Ausente</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">@item.WhatsAppStatus</span>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        @if (item.CanCancel)
+                                        {
+                                            <form asp-action="Cancel" method="post" onsubmit="return confirmAction('Tem certeza que deseja cancelar esta reserva?');">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <button type="submit" class="btn-danger" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" title="Cancelar">
+                                                    Cancelar
+                                                </button>
+                                            </form>
+                                        }
+                                        @if (item.CanReschedule)
+                                        {
+                                            <button type="button" class="btn-outline-gold" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="openRescheduleModal('@item.Id', '@item.ServiceName', '@item.BarberName', '@item.StartTime.ToString("yyyy-MM-dd")', '@item.StartTime.ToString("HH:mm")')">
+                                                Reagendar
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Reagendamento -->
+<div id="rescheduleModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center;">
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 2rem; max-width: 480px; width: 90%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 class="gold-text"><i class="bi bi-calendar-event"></i> Reagendar Horário</h3>
+            <button type="button" onclick="closeRescheduleModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+        </div>
+
+        <div id="rescheduleError" class="alert-box alert-error" style="display: none;"></div>
+
+        <input type="hidden" id="modalAppointmentId" />
+        
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+            Serviço: <strong id="modalServiceName" style="color: var(--text-light);">-</strong><br />
+            Profissional: <strong id="modalBarberName" style="color: var(--text-light);">-</strong>
+        </p>
+
+        <div class="form-group">
+            <label for="modalNewDate" class="form-label">Nova Data</label>
+            <input type="date" id="modalNewDate" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="modalNewTime" class="form-label">Novo Horário (ex: 14:00, 15:30)</label>
+            <input type="time" id="modalNewTime" class="form-control" />
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+            <button type="button" class="btn-outline-gold" onclick="closeRescheduleModal()">Fechar</button>
+            <button type="button" id="btnSubmitReschedule" class="btn-gold" onclick="submitReschedule()">Confirmar Novo Horário</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openRescheduleModal(id, service, barber, currentDate, currentTime) {
+    document.getElementById("modalAppointmentId").value = id;
+    document.getElementById("modalServiceName").innerText = service;
+    document.getElementById("modalBarberName").innerText = barber;
+    document.getElementById("modalNewDate").value = currentDate;
+    document.getElementById("modalNewDate").min = new Date().toISOString().split("T")[0];
+    document.getElementById("modalNewTime").value = currentTime;
+    document.getElementById("rescheduleError").style.display = "none";
+    document.getElementById("rescheduleModal").style.display = "flex";
+}
+
+function closeRescheduleModal() {
+    document.getElementById("rescheduleModal").style.display = "none";
+}
+
+async function submitReschedule() {
+    const id = parseInt(document.getElementById("modalAppointmentId").value);
+    const date = document.getElementById("modalNewDate").value;
+    const time = document.getElementById("modalNewTime").value;
+    const btn = document.getElementById("btnSubmitReschedule");
+    const errorAlert = document.getElementById("rescheduleError");
+
+    if (!date || !time) {
+        errorAlert.style.display = "block";
+        errorAlert.innerText = "Informe a data e o horário desejado.";
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = "Validando...";
+    errorAlert.style.display = "none";
+
+    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+    try {
+        const response = await fetch("/Client/Reschedule", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "RequestVerificationToken": token || ""
+            },
+            body: JSON.stringify({
+                appointmentId: id,
+                newDate: date,
+                newTimeSlot: time
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            window.location.reload();
+        } else {
+            btn.disabled = false;
+            btn.innerText = "Confirmar Novo Horário";
+            errorAlert.style.display = "block";
+            errorAlert.innerText = data.message || "Horário indisponível. Escolha outro.";
+        }
+    } catch (e) {
+        btn.disabled = false;
+        btn.innerText = "Confirmar Novo Horário";
+        errorAlert.style.display = "block";
+        errorAlert.innerText = "Erro ao processar reagendamento.";
+    }
+}
+</script>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BarberShop Admin</title>
+    <!-- Favicon / Ícone da Aba em Alta Definição (SVG Vetorial + PNGs Otimizados) -->
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" asp-append-version="true" />
+    <link rel="icon" type="image/png" sizes="32x32" href="~/favicon-32x32.png" asp-append-version="true" />
+    <link rel="icon" type="image/png" sizes="16x16" href="~/favicon-16x16.png" asp-append-version="true" />
+    <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" asp-append-version="true" />
+    <link rel="apple-touch-icon" sizes="180x180" href="~/apple-touch-icon.png" asp-append-version="true" />
+    <link rel="manifest" href="~/site.webmanifest" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+</head>
+<body style="background-color: #121212;">
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <img src="~/images/logo-emblem.png" alt="BarberShop Emblem" style="height: 38px;" />
+                <span class="sidebar-brand-title">BARBERSHOP</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-grid-1x2"></i> Dashboard
+                </a>
+                <a asp-controller="Appointments" asp-action="Index">
+                    <i class="bi bi-calendar3"></i> Agendamentos
+                </a>
+                <a asp-controller="Services" asp-action="Index">
+                    <i class="bi bi-scissors"></i> Serviços
+                </a>
+                <a asp-controller="Barbers" asp-action="Index">
+                    <i class="bi bi-person-badge"></i> Barbeiros
+                </a>
+                <a asp-controller="Clients" asp-action="Index">
+                    <i class="bi bi-people"></i> Clientes
+                </a>
+                <a asp-controller="Settings" asp-action="Index">
+                    <i class="bi bi-gear"></i> Configurações & WhatsApp
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a asp-controller="Home" asp-action="Index" class="btn-outline-gold" style="width: 100%; justify-content: center; margin-bottom: 0.5rem;">
+                    <i class="bi bi-box-arrow-up-right"></i> Ver Site
+                </a>
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-danger" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="bi bi-power"></i> Desconectar
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <div class="admin-content">
+            <header class="admin-topbar">
+                <div style="font-size: 0.9rem; color: var(--text-muted);">
+                    <i class="bi bi-shield-check gold-text"></i> Painel do Proprietário
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 0.88rem; color: var(--text-light);">
+                        <i class="bi bi-person-fill gold-text"></i> @User.Identity?.Name
+                    </span>
+                    <a asp-controller="Appointments" asp-action="Create" class="btn-gold" style="padding: 0.45rem 1rem; font-size: 0.82rem;">
+                        <i class="bi bi-plus-circle"></i> Novo Agendamento
+                    </a>
+                </div>
+            </header>
+
+            <main class="admin-main">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert-box alert-success">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>@TempData["SuccessMessage"]</span>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert-box alert-error">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span>@TempData["ErrorMessage"]</span>
+                    </div>
+                }
+
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

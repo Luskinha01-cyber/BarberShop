@@ -1,0 +1,83 @@
+@model List<BarberShop.ViewModels.Admin.AdminClientViewModel>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Gerenciar Clientes";
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+    <div>
+        <h1 class="brand-title gold-text" style="font-size: 1.8rem;">Base de Clientes</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Consulte o histórico, frequência e dados de contato dos clientes</p>
+    </div>
+</div>
+
+<div class="summary-card" style="padding: 1.25rem; margin-bottom: 2rem;">
+    <form method="get" class="filter-bar" style="margin-bottom: 0;">
+        <div style="flex-grow: 1;">
+            <input type="text" name="search" class="form-control" placeholder="Pesquisar por nome completo ou celular..." value="@ViewBag.SearchTerm" />
+        </div>
+        <div>
+            <button type="submit" class="btn-gold" style="padding: 0.75rem 1.4rem;">
+                <i class="bi bi-search"></i> Pesquisar
+            </button>
+            <a asp-action="Index" class="btn-outline-gold" style="padding: 0.75rem 1.2rem;">
+                Limpar
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="data-table-container">
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Nome do Cliente</th>
+                    <th>Celular</th>
+                    <th>Data de Cadastro</th>
+                    <th>WhatsApp LGPD</th>
+                    <th>Total Atendimentos</th>
+                    <th>Total Gasto</th>
+                    <th>Última Visita</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                            Nenhum cliente cadastrado ou encontrado com o termo pesquisado.
+                        </td>
+                    </tr>
+                }
+                @foreach (var c in Model)
+                {
+                    <tr>
+                        <td><strong>@c.FullName</strong></td>
+                        <td>@c.PhoneNumber</td>
+                        <td>@c.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            @if (c.WhatsAppConsent)
+                            {
+                                <span class="badge badge-success"><i class="bi bi-check-lg"></i> Consentido</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-warning">Não Autorizado</span>
+                            }
+                        </td>
+                        <td>@c.TotalAppointments</td>
+                        <td class="gold-text"><strong>@c.TotalSpent.ToString("C")</strong></td>
+                        <td>@(c.LastVisit.HasValue ? c.LastVisit.Value.ToString("dd/MM/yyyy") : "Nunca compareceu")</td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@c.Id" class="btn-outline-gold" style="padding: 0.35rem 0.75rem; font-size: 0.82rem;">
+                                <i class="bi bi-clock-history"></i> Histórico
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

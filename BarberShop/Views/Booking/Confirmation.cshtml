@@ -1,0 +1,81 @@
+@model BarberShop.ViewModels.Booking.BookingConfirmationViewModel
+@{
+    ViewData["Title"] = "Agendamento Confirmado!";
+}
+
+<div class="content-section" style="max-width: 650px;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(56, 142, 60, 0.15); border: 2px solid var(--success); display: inline-flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #81C784; margin-bottom: 1.25rem;">
+            <i class="bi bi-check-lg"></i>
+        </div>
+        <span class="hero-badge" style="border-color: var(--success); color: #81C784;">Reserva Garantida</span>
+        <h1 class="brand-title" style="font-size: 2.2rem; margin-top: 0.5rem;">Agendamento Confirmado!</h1>
+        <p style="color: var(--text-muted); font-size: 1rem;">
+            Obrigado, <strong>@Model.ClientName</strong>! Seu horário está reservado com exclusividade.
+        </p>
+    </div>
+
+    <!-- Feedback do WhatsApp -->
+    @if (Model.WhatsAppConsent)
+    {
+        @if (Model.WhatsAppNotificationSimulated)
+        {
+            <div class="alert-box alert-success" style="background: rgba(200, 169, 107, 0.1); border-color: var(--accent-gold); color: var(--text-light); flex-direction: column; align-items: flex-start; gap: 0.4rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--accent-gold);">
+                    <i class="bi bi-whatsapp"></i> Notificação WhatsApp (Modo de Simulação Ativo)
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">
+                    O disparo foi registrado com sucesso em ambiente de desenvolvimento local na tabela de notificações. Em produção, com a Meta Cloud API conectada, o cliente receberá a confirmação instantaneamente.
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert-box alert-success">
+                <i class="bi bi-whatsapp"></i>
+                <span>Confirmação enviada para o seu WhatsApp no número <strong>@Model.ClientPhone</strong>!</span>
+            </div>
+        }
+    }
+
+    <!-- Detalhes do Agendamento -->
+    <div class="summary-card" style="margin-bottom: 2rem;">
+        <div class="summary-row">
+            <span style="color: var(--text-muted);">Código da Reserva:</span>
+            <strong class="gold-text">#@Model.AppointmentId</strong>
+        </div>
+        <div class="summary-row">
+            <span style="color: var(--text-muted);">Serviço:</span>
+            <strong>@Model.ServiceName</strong>
+        </div>
+        <div class="summary-row">
+            <span style="color: var(--text-muted);">Profissional Responsável:</span>
+            <strong class="gold-text">@Model.BarberName</strong>
+        </div>
+        <div class="summary-row">
+            <span style="color: var(--text-muted);">Data:</span>
+            <strong>@Model.StartTime.ToString("dd/MM/yyyy (dddd)")</strong>
+        </div>
+        <div class="summary-row">
+            <span style="color: var(--text-muted);">Horário:</span>
+            <strong>@Model.StartTime.ToString("HH:mm") às @Model.EndTime.ToString("HH:mm")</strong>
+        </div>
+        <div class="summary-row">
+            <span style="color: var(--text-muted);">Valor Garantido:</span>
+            <strong style="font-size: 1.25rem; color: var(--accent-gold);">@Model.Price.ToString("C")</strong>
+        </div>
+        <div class="summary-row">
+            <span style="color: var(--text-muted);">Forma de Pagamento:</span>
+            <span><strong>Presencial</strong> (pagamento na barbearia ao finalizar)</span>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a asp-controller="Client" asp-action="Index" class="btn-gold" style="padding: 0.8rem 1.8rem;">
+            <i class="bi bi-person-circle"></i> Meus Agendamentos
+        </a>
+        <a asp-controller="Home" asp-action="Index" class="btn-outline-gold" style="padding: 0.8rem 1.8rem;">
+            <i class="bi bi-house"></i> Voltar ao Início
+        </a>
+    </div>
+</div>

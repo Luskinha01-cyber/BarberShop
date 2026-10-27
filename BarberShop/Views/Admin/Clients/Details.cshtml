@@ -1,0 +1,91 @@
+@model BarberShop.Models.ApplicationUser
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Histórico do Cliente";
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h1 class="brand-title gold-text" style="font-size: 1.8rem;">Perfil de @Model.FullName</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">
+            Celular: <strong>@Model.PhoneNumber</strong> &nbsp;|&nbsp;
+            Cadastrado em: <strong>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</strong>
+        </p>
+    </div>
+    <a asp-action="Index" class="btn-outline-gold">
+        <i class="bi bi-arrow-left"></i> Voltar à Lista
+    </a>
+</div>
+
+<div class="data-table-container">
+    <div class="table-header-bar">
+        <h3 class="gold-text" style="font-size: 1.15rem; margin: 0;"><i class="bi bi-calendar-check"></i> Histórico de Atendimentos</h3>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Data & Horário</th>
+                    <th>Serviço</th>
+                    <th>Barbeiro</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                    <th>Pagamento</th>
+                    <th>Observações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Appointments.Any())
+                {
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                            Este cliente ainda não realizou nenhum agendamento.
+                        </td>
+                    </tr>
+                }
+                @foreach (var a in Model.Appointments.OrderByDescending(x => x.StartTime))
+                {
+                    <tr>
+                        <td>
+                            <strong>@a.StartTime.ToString("dd/MM/yyyy")</strong><br />
+                            <small style="color: var(--text-muted);">@a.StartTime.ToString("HH:mm") às @a.EndTime.ToString("HH:mm")</small>
+                        </td>
+                        <td><strong>@a.Service.Name</strong></td>
+                        <td>@a.Barber.Name</td>
+                        <td class="gold-text">@a.Price.ToString("C")</td>
+                        <td>
+                            @switch (a.Status)
+                            {
+                                case BarberShop.Models.Enums.AppointmentStatus.Confirmed:
+                                    <span class="badge badge-success">Confirmado</span>
+                                    break;
+                                case BarberShop.Models.Enums.AppointmentStatus.Completed:
+                                    <span class="badge badge-gold">Concluído</span>
+                                    break;
+                                case BarberShop.Models.Enums.AppointmentStatus.CancelledByClient:
+                                case BarberShop.Models.Enums.AppointmentStatus.CancelledByAdmin:
+                                    <span class="badge badge-danger">Cancelado</span>
+                                    break;
+                                case BarberShop.Models.Enums.AppointmentStatus.NoShow:
+                                    <span class="badge badge-warning">Ausente</span>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            @if (a.PaymentStatus == BarberShop.Models.Enums.PaymentStatus.Paid)
+                            {
+                                <span class="badge badge-success">Pago</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-warning">Pendente</span>
+                            }
+                        </td>
+                        <td>@(a.Notes ?? "-")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

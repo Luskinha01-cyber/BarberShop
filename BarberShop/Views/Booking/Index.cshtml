@@ -1,0 +1,261 @@
+@model BarberShop.ViewModels.Booking.BookingWizardViewModel
+@{
+    ViewData["Title"] = "Agendamento Online";
+}
+
+<div class="content-section" style="max-width: 960px;">
+    <!-- Cabeçalho do Fluxo -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <span class="section-tag">Passo a Passo</span>
+        <h1 class="section-title">Reserve Seu Atendimento</h1>
+        <p class="section-subtitle">Escolha o serviço, seu profissional de preferência, data e horário ideal.</p>
+    </div>
+
+    <!-- Navegação dos 5 Passos -->
+    <div class="wizard-nav">
+        <div id="stepNav1" class="wizard-nav-item active" onclick="goToStep(1)">
+            <div class="wizard-step-circle">1</div>
+            <span>Serviço</span>
+        </div>
+        <div id="stepNav2" class="wizard-nav-item" onclick="goToStep(2)">
+            <div class="wizard-step-circle">2</div>
+            <span>Profissional</span>
+        </div>
+        <div id="stepNav3" class="wizard-nav-item" onclick="goToStep(3)">
+            <div class="wizard-step-circle">3</div>
+            <span>Data</span>
+        </div>
+        <div id="stepNav4" class="wizard-nav-item" onclick="goToStep(4)">
+            <div class="wizard-step-circle">4</div>
+            <span>Horário</span>
+        </div>
+        <div id="stepNav5" class="wizard-nav-item" onclick="goToStep(5)">
+            <div class="wizard-step-circle">5</div>
+            <span>Confirmação</span>
+        </div>
+    </div>
+
+    @Html.AntiForgeryToken()
+
+    <!-- PASSO 1: ESCOLHA DO SERVIÇO -->
+    <div id="step1">
+        <h3 class="gold-text" style="margin-bottom: 1.5rem;"><i class="bi bi-scissors"></i> 1. Selecione o Serviço Desejado</h3>
+        <div class="services-grid">
+            @foreach (var s in Model.Services)
+            {
+                bool isPre = Model.PreSelectedServiceId.HasValue && Model.PreSelectedServiceId.Value == s.Id;
+                <div class="service-card service-card-select @(isPre ? "selected" : "")"
+                     data-id="@s.Id"
+                     data-name="@s.Name"
+                     data-price="@s.Price"
+                     data-duration="@s.DurationMinutes"
+                     onclick="selectService('@s.Id', '@s.Name', '@s.Price', '@s.DurationMinutes')">
+                    <div class="service-card-header">
+                        <h4 class="service-name">@s.Name</h4>
+                        <span class="service-price">@s.Price.ToString("C")</span>
+                    </div>
+                    <div class="service-duration">
+                        <i class="bi bi-clock"></i> @s.DurationMinutes min
+                    </div>
+                    <p class="service-description">@s.Description</p>
+                    <button type="button" class="btn-outline-gold" style="width: 100%; justify-content: center; pointer-events: none;">
+                        Selecionar
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- PASSO 2: ESCOLHA DO PROFISSIONAL -->
+    <div id="step2" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 class="gold-text"><i class="bi bi-person-badge"></i> 2. Selecione o Profissional</h3>
+            <button type="button" class="btn-outline-gold" onclick="goToStep(1)">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </button>
+        </div>
+
+        <div class="services-grid">
+            <!-- Opção Especial: Qualquer Profissional Disponível -->
+            <div class="service-card barber-card-select selected"
+                 data-id="any"
+                 onclick="selectBarber('', 'Qualquer profissional disponível (Mais Rápido)')">
+                <div style="text-align: center;">
+                    <div style="font-size: 2.2rem; color: var(--accent-gold); margin-bottom: 0.5rem;">
+                        <i class="bi bi-lightning-charge"></i>
+                    </div>
+                    <h4 class="service-name gold-text">Qualquer Profissional</h4>
+                    <span class="badge badge-gold" style="margin: 0.5rem 0;">Recomendado</span>
+                    <p class="service-description">
+                        O sistema aloca automaticamente o profissional com disponibilidade perfeita no horário que você escolher.
+                    </p>
+                    <button type="button" class="btn-gold" style="width: 100%; justify-content: center; pointer-events: none;">
+                        Continuar com Qualquer
+                    </button>
+                </div>
+            </div>
+
+            <!-- Barbeiros Individuais -->
+            @foreach (var b in Model.Barbers)
+            {
+                <div class="service-card barber-card-select"
+                     data-id="@b.Id"
+                     onclick="selectBarber('@b.Id', '@b.Name')">
+                    <div style="text-align: center;">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(200, 169, 107, 0.15); border: 1px solid var(--accent-gold); display: inline-flex; align-items: center; justify-content: center; font-size: 1.6rem; color: var(--accent-gold); margin-bottom: 0.5rem;">
+                            <i class="bi bi-person"></i>
+                        </div>
+                        <h4 class="service-name">@b.Name</h4>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Especialista BarberShop</span>
+                        <p class="service-description">@(b.Description ?? "Profissional dedicado e atencioso.")</p>
+                        <button type="button" class="btn-outline-gold" style="width: 100%; justify-content: center; pointer-events: none;">
+                            Escolher @b.Name.Split(' ')[0]
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- PASSO 3: ESCOLHA DA DATA -->
+    <div id="step3" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 class="gold-text"><i class="bi bi-calendar3"></i> 3. Escolha a Data</h3>
+            <button type="button" class="btn-outline-gold" onclick="goToStep(2)">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </button>
+        </div>
+
+        <div class="auth-container" style="max-width: 500px; margin: 2rem auto;">
+            <div class="form-group">
+                <label for="bookingDate" class="form-label">
+                    <i class="bi bi-calendar-event gold-text"></i> Selecione a Data Desejada
+                </label>
+                <input type="date" id="bookingDate" class="form-control" style="font-size: 1.1rem; padding: 0.85rem;" />
+                <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                    * Funcionamento: Terça a Sábado das @Model.Settings.OpeningTime.ToString(@"hh\:mm") às @Model.Settings.ClosingTime.ToString(@"hh\:mm").
+                </small>
+            </div>
+
+            <button type="button" class="btn-gold" style="width: 100%; justify-content: center; margin-top: 1.5rem;" onclick="selectDateNext()">
+                Ver Horários Disponíveis <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- PASSO 4: ESCOLHA DO HORÁRIO -->
+    <div id="step4" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 class="gold-text"><i class="bi bi-clock"></i> 4. Escolha o Horário Disponível</h3>
+            <button type="button" class="btn-outline-gold" onclick="goToStep(3)">
+                <i class="bi bi-arrow-left"></i> Alterar Data
+            </button>
+        </div>
+
+        <div id="slotsLoading" style="text-align: center; padding: 3rem; color: var(--accent-gold);">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;"><i class="bi bi-arrow-repeat" style="animation: spin 1s infinite linear;"></i></div>
+            <p>Calculando horários livres em tempo real no servidor...</p>
+        </div>
+
+        <div id="noSlotsMessage" style="display: none; text-align: center; padding: 3rem; background: var(--bg-card); border-radius: 10px; border: 1px dashed var(--border-color);">
+            <i class="bi bi-calendar-x" style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 1rem; display: block;"></i>
+            <h4 style="margin-bottom: 0.5rem;">Nenhum horário disponível para esta data</h4>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Pode ser um dia de folga da barbearia ou todos os horários já foram reservados.</p>
+            <button type="button" class="btn-outline-gold" onclick="goToStep(3)">
+                Escolher Outra Data
+            </button>
+        </div>
+
+        <div id="slotsContainer" class="slots-grid"></div>
+    </div>
+
+    <!-- PASSO 5: RESUMO E CONFIRMAÇÃO -->
+    <div id="step5" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 class="gold-text"><i class="bi bi-check2-circle"></i> 5. Confirmação do Agendamento</h3>
+            <button type="button" class="btn-outline-gold" onclick="goToStep(4)">
+                <i class="bi bi-arrow-left"></i> Alterar Horário
+            </button>
+        </div>
+
+        <div id="bookingErrorAlert" class="alert-box alert-error" style="display: none;"></div>
+
+        <div class="summary-card" style="max-width: 600px; margin: 0 auto;">
+            <h4 class="brand-title gold-text" style="font-size: 1.4rem; margin-bottom: 1.5rem; text-align: center;">Resumo da Reserva</h4>
+            
+            <div class="summary-row">
+                <span style="color: var(--text-muted);">Serviço:</span>
+                <strong id="summaryService">-</strong>
+            </div>
+            <div class="summary-row">
+                <span style="color: var(--text-muted);">Duração Prevista:</span>
+                <span id="summaryDuration">-</span>
+            </div>
+            <div class="summary-row">
+                <span style="color: var(--text-muted);">Profissional:</span>
+                <strong id="summaryBarber" class="gold-text">-</strong>
+            </div>
+            <div class="summary-row">
+                <span style="color: var(--text-muted);">Data:</span>
+                <strong id="summaryDate">-</strong>
+            </div>
+            <div class="summary-row">
+                <span style="color: var(--text-muted);">Horário:</span>
+                <strong id="summaryTime">-</strong>
+            </div>
+            <div class="summary-row">
+                <span style="color: var(--text-muted);">Valor do Atendimento:</span>
+                <strong id="summaryPrice" style="font-size: 1.3rem; color: var(--accent-gold);">-</strong>
+            </div>
+            <div class="summary-row">
+                <span style="color: var(--text-muted);">Forma de Pagamento:</span>
+                <span><strong>Presencial</strong> (dinheiro, PIX ou cartão no local)</span>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label for="bookingNotes" class="form-label">
+                    <i class="bi bi-pencil gold-text"></i> Observações ou Preferências (Opcional):
+                </label>
+                <textarea id="bookingNotes" class="form-control" rows="2" placeholder="Ex: Preferência por corte mais curto nas laterais..."></textarea>
+            </div>
+
+            <div id="bookingCardErrorAlert" class="alert-box alert-error" style="display: none; margin-top: 1.25rem;"></div>
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div style="margin-top: 1.5rem;">
+                    <button type="button" id="btnConfirmBooking" class="btn-gold" style="width: 100%; justify-content: center; font-size: 1.05rem; padding: 0.9rem;" onclick="confirmBooking()">
+                        <i class="bi bi-check2-circle"></i> Confirmar Agendamento
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div style="background: rgba(200, 169, 107, 0.1); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-top: 1.5rem; text-align: center;">
+                    <p style="margin-bottom: 1rem; font-size: 0.95rem;">
+                        <i class="bi bi-info-circle gold-text"></i> Quase lá! É necessário estar autenticado com seu número de celular para concluir a reserva.
+                    </p>
+                    <div style="display: flex; gap: 0.75rem; justify-content: center;">
+                        <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="/Booking" class="btn-outline-gold">
+                            <i class="bi bi-person"></i> Fazer Login
+                        </a>
+                        <a asp-controller="Account" asp-action="Register" class="btn-gold">
+                            Criar Conta Rápida
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+@@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
+
+@section Scripts {
+    <script src="~/js/booking.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,198 @@
+@model List<BarberShop.ViewModels.Admin.AdminAppointmentItemViewModel>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Gerenciar Agendamentos";
+    var barbers = ViewBag.Barbers as List<BarberShop.Models.Barber> ?? new();
+    var services = ViewBag.Services as List<BarberShop.Models.Service> ?? new();
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+    <div>
+        <h1 class="brand-title gold-text" style="font-size: 1.8rem;">Gerenciamento de Agendamentos</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Consulte, filtre e administre os atendimentos da barbearia</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn-gold">
+            <i class="bi bi-calendar-plus"></i> Agendar Novo Cliente
+        </a>
+    </div>
+</div>
+
+<!-- Barra de Filtros -->
+<div class="summary-card" style="padding: 1.25rem; margin-bottom: 2rem;">
+    <form method="get" class="filter-bar" style="margin-bottom: 0;">
+        <div>
+            <label class="form-label" style="font-size: 0.8rem;">Data</label>
+            <input type="date" name="date" class="form-control" value="@ViewBag.CurrentDate" style="padding: 0.5rem 0.8rem;" />
+        </div>
+        <div>
+            <label class="form-label" style="font-size: 0.8rem;">Barbeiro</label>
+            <select name="barberId" class="form-control" style="padding: 0.5rem 0.8rem;">
+                <option value="">Todos os barbeiros</option>
+                @foreach (var b in barbers)
+                {
+                    <option value="@b.Id" selected="@(ViewBag.CurrentBarberId != null && (int)ViewBag.CurrentBarberId == b.Id)">@b.Name</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label class="form-label" style="font-size: 0.8rem;">Serviço</label>
+            <select name="serviceId" class="form-control" style="padding: 0.5rem 0.8rem;">
+                <option value="">Todos os serviços</option>
+                @foreach (var s in services)
+                {
+                    <option value="@s.Id" selected="@(ViewBag.CurrentServiceId != null && (int)ViewBag.CurrentServiceId == s.Id)">@s.Name</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label class="form-label" style="font-size: 0.8rem;">Status</label>
+            <select name="status" class="form-control" style="padding: 0.5rem 0.8rem;">
+                <option value="">Todos os status</option>
+                <option value="Confirmed" selected="@(ViewBag.CurrentStatus == "Confirmed")">Confirmado</option>
+                <option value="Completed" selected="@(ViewBag.CurrentStatus == "Completed")">Concluído</option>
+                <option value="CancelledByClient" selected="@(ViewBag.CurrentStatus == "CancelledByClient")">Cancelado pelo Cliente</option>
+                <option value="CancelledByAdmin" selected="@(ViewBag.CurrentStatus == "CancelledByAdmin")">Cancelado pelo Admin</option>
+                <option value="NoShow" selected="@(ViewBag.CurrentStatus == "NoShow")">Ausente (No-Show)</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label" style="font-size: 0.8rem;">Pesquisa (Cliente / Tel)</label>
+            <input type="text" name="search" class="form-control" placeholder="Nome ou telefone..." value="@ViewBag.SearchTerm" style="padding: 0.5rem 0.8rem;" />
+        </div>
+        <div style="align-self: flex-end; display: flex; gap: 0.5rem;">
+            <button type="submit" class="btn-gold" style="padding: 0.55rem 1.2rem; font-size: 0.85rem;">
+                <i class="bi bi-funnel"></i> Filtrar
+            </button>
+            <a asp-action="Index" class="btn-outline-gold" style="padding: 0.55rem 1rem; font-size: 0.85rem;">
+                Limpar
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Tabela de Agendamentos -->
+<div class="data-table-container">
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Data & Horário</th>
+                    <th>Cliente</th>
+                    <th>Telefone</th>
+                    <th>Barbeiro</th>
+                    <th>Serviço</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                    <th>Pagamento</th>
+                    <th>WhatsApp</th>
+                    <th>Ações Administrativas</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="10" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                            Nenhum agendamento encontrado para os filtros selecionados.
+                        </td>
+                    </tr>
+                }
+                @foreach (var a in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@a.StartTime.ToString("dd/MM/yyyy")</strong><br />
+                            <small style="color: var(--text-muted);">@a.StartTime.ToString("HH:mm") às @a.EndTime.ToString("HH:mm")</small>
+                        </td>
+                        <td><strong>@a.ClientName</strong></td>
+                        <td>@a.ClientPhone</td>
+                        <td class="gold-text">@a.BarberName</td>
+                        <td>@a.ServiceName</td>
+                        <td><strong>@a.Price.ToString("C")</strong></td>
+                        <td>
+                            @switch (a.Status)
+                            {
+                                case AppointmentStatus.Confirmed:
+                                    <span class="badge badge-success">Confirmado</span>
+                                    break;
+                                case AppointmentStatus.Completed:
+                                    <span class="badge badge-gold">Concluído</span>
+                                    break;
+                                case AppointmentStatus.CancelledByClient:
+                                    <span class="badge badge-danger">Canc. Cliente</span>
+                                    break;
+                                case AppointmentStatus.CancelledByAdmin:
+                                    <span class="badge badge-danger">Canc. Admin</span>
+                                    break;
+                                case AppointmentStatus.NoShow:
+                                    <span class="badge badge-warning">Ausente</span>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            @if (a.PaymentStatus == PaymentStatus.Paid)
+                            {
+                                <span class="badge badge-success">Pago (@(a.AmountPaid?.ToString("C") ?? a.Price.ToString("C")))</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-warning">Pendente</span>
+                            }
+                        </td>
+                        <td>
+                            <small style="color: var(--text-muted);">@a.WhatsAppStatus</small>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                                <!-- Botão de Status (Concluir / Ausente) -->
+                                @if (a.Status == AppointmentStatus.Confirmed)
+                                {
+                                    <form asp-action="UpdateStatus" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@a.Id" />
+                                        <input type="hidden" name="status" value="@AppointmentStatus.Completed" />
+                                        <button type="submit" class="btn-outline-gold" style="padding: 0.3rem 0.6rem; font-size: 0.78rem;" title="Marcar como Concluído">
+                                            <i class="bi bi-check-lg"></i> Concluir
+                                        </button>
+                                    </form>
+
+                                    <form asp-action="UpdateStatus" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@a.Id" />
+                                        <input type="hidden" name="status" value="@AppointmentStatus.NoShow" />
+                                        <button type="submit" class="btn-outline-gold" style="padding: 0.3rem 0.6rem; font-size: 0.78rem;" title="Registrar Falta/Ausência">
+                                            Ausência
+                                        </button>
+                                    </form>
+
+                                    <form asp-action="Cancel" method="post" onsubmit="return confirmAction('Tem certeza que deseja cancelar este agendamento? O horário será liberado e o cliente notificado.');" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@a.Id" />
+                                        <button type="submit" class="btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.78rem;" title="Cancelar Agendamento">
+                                            <i class="bi bi-x"></i>
+                                        </button>
+                                    </form>
+                                }
+
+                                <!-- Botão de Pagamento -->
+                                @if (a.PaymentStatus == PaymentStatus.Pending && a.Status != AppointmentStatus.CancelledByClient && a.Status != AppointmentStatus.CancelledByAdmin)
+                                {
+                                    <form asp-action="UpdatePayment" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@a.Id" />
+                                        <input type="hidden" name="paymentStatus" value="@PaymentStatus.Paid" />
+                                        <input type="hidden" name="amountPaid" value="@a.Price" />
+                                        <button type="submit" class="btn-gold" style="padding: 0.3rem 0.6rem; font-size: 0.78rem;" title="Registrar Recebimento Presencial">
+                                            <i class="bi bi-cash"></i> Pago
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

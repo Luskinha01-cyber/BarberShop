@@ -1,0 +1,111 @@
+@model BarberShop.ViewModels.Admin.BarberFormViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Cadastrar Barbeiro";
+    var dayNames = new Dictionary<DayOfWeek, string>
+    {
+        { DayOfWeek.Sunday, "Domingo" },
+        { DayOfWeek.Monday, "Segunda-feira" },
+        { DayOfWeek.Tuesday, "Terça-feira" },
+        { DayOfWeek.Wednesday, "Quarta-feira" },
+        { DayOfWeek.Thursday, "Quinta-feira" },
+        { DayOfWeek.Friday, "Sexta-feira" },
+        { DayOfWeek.Saturday, "Sábado" }
+    };
+}
+
+<div class="auth-container" style="max-width: 820px; margin: 2rem auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 class="brand-title gold-text" style="font-size: 1.5rem;"><i class="bi bi-person-plus"></i> Novo Barbeiro</h2>
+        <a asp-action="Index" class="btn-outline-gold" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="validation-summary-errors" asp-validation-summary="All"></div>
+    }
+
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label asp-for="Name" class="form-label">Nome Completo</label>
+                <input asp-for="Name" class="form-control" placeholder="Ex: Felipe Ramos" required />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Phone" class="form-label">Telefone (Opcional)</label>
+                <input asp-for="Phone" class="form-control" type="tel" placeholder="(11) 99999-8888" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Description" class="form-label">Especialidade / Biografia Curta</label>
+            <textarea asp-for="Description" class="form-control" rows="2" placeholder="Especialista em visagismo, corte navalhado..."></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="form-check" style="margin-bottom: 2rem;">
+            <input asp-for="IsActive" type="checkbox" id="chkActiveBarber" />
+            <label for="chkActiveBarber">Barbeiro ativo para novos agendamentos</label>
+        </div>
+
+        <h3 class="gold-text" style="font-size: 1.2rem; margin-bottom: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 1.5rem;">
+            <i class="bi bi-clock"></i> Escala Semanal de Trabalho
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">
+            Defina os dias trabalhados, horário de expediente e intervalo de almoço do profissional.
+        </p>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Dia</th>
+                        <th>Trabalha?</th>
+                        <th>Início</th>
+                        <th>Fim</th>
+                        <th>Almoço Início</th>
+                        <th>Almoço Fim</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.WorkingHours.Count; i++)
+                    {
+                        var wh = Model.WorkingHours[i];
+                        <tr>
+                            <td>
+                                <strong>@dayNames[wh.DayOfWeek]</strong>
+                                <input type="hidden" name="WorkingHours[@i].DayOfWeek" value="@wh.DayOfWeek" />
+                            </td>
+                            <td>
+                                <input type="checkbox" name="WorkingHours[@i].IsWorkingDay" value="true" @(wh.IsWorkingDay ? "checked" : "") style="width: 18px; height: 18px; accent-color: var(--accent-gold);" />
+                            </td>
+                            <td>
+                                <input type="time" name="WorkingHours[@i].StartTime" value="@wh.StartTime" class="form-control" style="padding: 0.35rem 0.6rem;" />
+                            </td>
+                            <td>
+                                <input type="time" name="WorkingHours[@i].EndTime" value="@wh.EndTime" class="form-control" style="padding: 0.35rem 0.6rem;" />
+                            </td>
+                            <td>
+                                <input type="time" name="WorkingHours[@i].LunchBreakStart" value="@wh.LunchBreakStart" class="form-control" style="padding: 0.35rem 0.6rem;" />
+                            </td>
+                            <td>
+                                <input type="time" name="WorkingHours[@i].LunchBreakEnd" value="@wh.LunchBreakEnd" class="form-control" style="padding: 0.35rem 0.6rem;" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <button type="submit" class="btn-gold" style="width: 100%; justify-content: center; padding: 0.85rem; margin-top: 1.5rem;">
+            <i class="bi bi-check2"></i> Salvar Barbeiro
+        </button>
+    </form>
+</div>

@@ -1,0 +1,149 @@
+@model List<BarberShop.Models.Barber>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Gerenciar Barbeiros";
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+    <div>
+        <h1 class="brand-title gold-text" style="font-size: 1.8rem;">Equipe de Barbeiros</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Gerencie os profissionais, horários de trabalho, folgas e férias</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn-gold">
+            <i class="bi bi-person-plus"></i> Novo Barbeiro
+        </a>
+    </div>
+</div>
+
+<div class="data-table-container">
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Profissional</th>
+                    <th>Telefone</th>
+                    <th>Especialidade / Descrição</th>
+                    <th>Status</th>
+                    <th>Folgas / Férias Ativas</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var b in Model)
+                {
+                    var activeTimeOffs = b.TimeOffs.Where(t => t.EndDate >= DateTime.Today).ToList();
+                    <tr>
+                        <td>
+                            <strong>@b.Name</strong>
+                        </td>
+                        <td>@(b.Phone ?? "Não informado")</td>
+                        <td style="max-width: 320px; color: var(--text-muted);">@(b.Description ?? "-")</td>
+                        <td>
+                            @if (b.IsActive)
+                            {
+                                <span class="badge badge-success">Ativo</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-danger">Inativo</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!activeTimeOffs.Any())
+                            {
+                                <span style="color: var(--text-muted); font-size: 0.85rem;">Nenhuma folga pendente</span>
+                            }
+                            else
+                            {
+                                @foreach (var to in activeTimeOffs)
+                                {
+                                    <span class="badge badge-warning" style="display: block; margin-bottom: 0.25rem;">
+                                        @to.Type: @to.StartDate.ToString("dd/MM") a @to.EndDate.ToString("dd/MM") (@to.Reason)
+                                    </span>
+                                }
+                            }
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <a asp-action="Edit" asp-route-id="@b.Id" class="btn-outline-gold" style="padding: 0.35rem 0.75rem; font-size: 0.82rem;">
+                                    <i class="bi bi-pencil"></i> Horários & Perfil
+                                </a>
+                                <button type="button" class="btn-outline-gold" style="padding: 0.35rem 0.75rem; font-size: 0.82rem;" onclick="openTimeOffModal('@b.Id', '@b.Name')">
+                                    <i class="bi bi-calendar-x"></i> Bloquear / Folga
+                                </button>
+                                <form asp-action="ToggleStatus" asp-route-id="@b.Id" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="@(b.IsActive ? "btn-danger" : "btn-gold")" style="padding: 0.35rem 0.75rem; font-size: 0.82rem;">
+                                        @(b.IsActive ? "Desativar" : "Ativar")
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para Adicionar Bloqueio / Folga -->
+<div id="timeOffModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center;">
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 2rem; max-width: 480px; width: 90%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 class="gold-text"><i class="bi bi-calendar-x"></i> Registrar Bloqueio de Horário</h3>
+            <button type="button" onclick="closeTimeOffModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+        </div>
+
+        <form asp-action="AddTimeOff" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="barberId" id="modalBarberId" />
+
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+                Barbeiro: <strong id="modalBarberName" style="color: var(--text-light);">-</strong>
+            </p>
+
+            <div class="form-group">
+                <label class="form-label">Tipo de Bloqueio</label>
+                <select name="type" class="form-control" required>
+                    <option value="@BarberShop.Models.Enums.TimeOffType.TimeOff">Folga</option>
+                    <option value="@BarberShop.Models.Enums.TimeOffType.Vacation">Férias</option>
+                    <option value="@BarberShop.Models.Enums.TimeOffType.Holiday">Feriado Local</option>
+                    <option value="@BarberShop.Models.Enums.TimeOffType.AdministrativeBlock">Bloqueio Administrativo</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Data Início</label>
+                    <input type="date" name="startDate" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Data Fim</label>
+                    <input type="date" name="endDate" class="form-control" required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Motivo</label>
+                <input type="text" name="reason" class="form-control" placeholder="Ex: Férias de verão, consulta, descanso..." required />
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                <button type="button" class="btn-outline-gold" onclick="closeTimeOffModal()">Cancelar</button>
+                <button type="submit" class="btn-gold">Salvar Bloqueio</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openTimeOffModal(id, name) {
+    document.getElementById("modalBarberId").value = id;
+    document.getElementById("modalBarberName").innerText = name;
+    document.getElementById("timeOffModal").style.display = "flex";
+}
+function closeTimeOffModal() {
+    document.getElementById("timeOffModal").style.display = "none";
+}
+</script>

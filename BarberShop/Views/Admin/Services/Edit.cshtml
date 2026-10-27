@@ -1,0 +1,59 @@
+@model BarberShop.ViewModels.Admin.ServiceFormViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Editar Serviço";
+}
+
+<div class="auth-container" style="max-width: 580px; margin: 2rem auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 class="brand-title gold-text" style="font-size: 1.5rem;"><i class="bi bi-pencil"></i> Editar Serviço</h2>
+        <a asp-action="Index" class="btn-outline-gold" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="validation-summary-errors" asp-validation-summary="All"></div>
+    }
+
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div class="form-group">
+            <label asp-for="Name" class="form-label">Nome do Serviço</label>
+            <input asp-for="Name" class="form-control" required />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Description" class="form-label">Descrição Comercial</label>
+            <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label asp-for="Price" class="form-label">Preço (R$)</label>
+                <input asp-for="Price" class="form-control" type="number" step="0.50" min="1" required />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DurationMinutes" class="form-label">Duração (Minutos)</label>
+                <input asp-for="DurationMinutes" class="form-control" type="number" step="5" min="5" required />
+                <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-check" style="margin-top: 0.5rem;">
+            <input asp-for="IsActive" type="checkbox" id="chkActiveEdit" />
+            <label for="chkActiveEdit">Serviço ativo para novos agendamentos</label>
+        </div>
+
+        <button type="submit" class="btn-gold" style="width: 100%; justify-content: center; padding: 0.85rem; margin-top: 1.5rem;">
+            <i class="bi bi-check2"></i> Atualizar Serviço
+        </button>
+    </form>
+</div>

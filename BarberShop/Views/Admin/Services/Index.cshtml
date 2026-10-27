@@ -1,0 +1,68 @@
+@model List<BarberShop.Models.Service>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Gerenciar Serviços";
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+    <div>
+        <h1 class="brand-title gold-text" style="font-size: 1.8rem;">Catálogo de Serviços</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Cadastre, edite preços, durações e controle a disponibilidade dos serviços</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn-gold">
+            <i class="bi bi-plus-lg"></i> Novo Serviço
+        </a>
+    </div>
+</div>
+
+<div class="data-table-container">
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Nome do Serviço</th>
+                    <th>Descrição</th>
+                    <th>Duração</th>
+                    <th>Preço Vigente</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    <tr>
+                        <td><strong>@s.Name</strong></td>
+                        <td style="max-width: 320px; color: var(--text-muted);">@s.Description</td>
+                        <td><i class="bi bi-stopwatch"></i> @s.DurationMinutes minutos</td>
+                        <td class="gold-text" style="font-size: 1.1rem;"><strong>@s.Price.ToString("C")</strong></td>
+                        <td>
+                            @if (s.IsActive)
+                            {
+                                <span class="badge badge-success">Ativo</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-danger">Inativo</span>
+                            }
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a asp-action="Edit" asp-route-id="@s.Id" class="btn-outline-gold" style="padding: 0.35rem 0.75rem; font-size: 0.82rem;">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </a>
+                                <form asp-action="ToggleStatus" asp-route-id="@s.Id" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="@(s.IsActive ? "btn-danger" : "btn-gold")" style="padding: 0.35rem 0.75rem; font-size: 0.82rem;">
+                                        @(s.IsActive ? "Desativar" : "Ativar")
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

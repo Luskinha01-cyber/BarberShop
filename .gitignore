@@ -1,0 +1,33 @@
+## Build and Target Directories
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Tt]est[Rr]esults/
+
+## Visual Studio & VS Code
+.vs/
+.vscode/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+
+## JetBrains Rider
+.idea/
+*.sln.iml
+
+## User Secrets & Local Config
+appsettings.Development.json
+*.local.json
+
+## Logs & Databases
+*.log
+*.sqlite
+*.db-shm
+*.db-wal
+
+## OS Generated
+.DS_Store
+Thumbs.db
+desktop.ini
