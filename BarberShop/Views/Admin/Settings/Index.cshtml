@@ -98,41 +98,75 @@
         <div class="form-check" style="background: rgba(255, 179, 0, 0.08); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid rgba(255, 179, 0, 0.3);">
             <input asp-for="EnableWhatsAppSimulation" type="checkbox" id="chkSim" />
             <label for="chkSim" style="color: var(--text-light);">
-                <strong>Modo de Simulação Local (Sem credenciais da Meta):</strong><br />
+                <strong>Modo de Simulação Local (Sem disparos reais):</strong><br />
                 <span style="color: var(--text-muted); font-size: 0.85rem;">
-                    Quando marcado, as mensagens são registradas com sucesso no banco de dados e console local sem requisição à Meta, ideal para desenvolvimento. Desmarque para disparos reais via WhatsApp Cloud API.
+                    Quando marcado, as mensagens são registradas com sucesso no banco de dados e console local sem requisições externas, ideal para desenvolvimento. Desmarque para disparos reais via Evolution API ou Meta Cloud API.
                 </span>
             </label>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem;">
-            <div class="form-group">
-                <label asp-for="MetaPhoneNumberId" class="form-label">Phone Number ID (Meta Developer)</label>
-                <input asp-for="MetaPhoneNumberId" class="form-control" placeholder="Ex: 104598239012345" />
-            </div>
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label asp-for="WhatsAppProvider" class="form-label"><strong>Provedor de Disparo do WhatsApp</strong></label>
+            <select asp-for="WhatsAppProvider" class="form-control" id="selectProvider" style="background: #181818; color: #fff; border: 1px solid rgba(200, 169, 107, 0.4);">
+                <option value="EvolutionApi">Evolution API (Open Source / Conexão via QR Code - 100% Sem Custos)</option>
+                <option value="MetaCloudApi">WhatsApp Cloud API Oficial (Meta / Facebook Developers)</option>
+            </select>
+        </div>
 
-            <div class="form-group">
-                <label asp-for="MetaBusinessAccountId" class="form-label">WhatsApp Business Account ID (WABA)</label>
-                <input asp-for="MetaBusinessAccountId" class="form-control" placeholder="Ex: 109283019283019" />
-            </div>
-
-            <div class="form-group">
-                <label asp-for="MetaApiVersion" class="form-label">Versão da Graph API</label>
-                <input asp-for="MetaApiVersion" class="form-control" placeholder="v21.0" />
-            </div>
-
-            <div class="form-group">
-                <label asp-for="WebhookVerifyToken" class="form-label">Token de Verificação do Webhook</label>
-                <input asp-for="WebhookVerifyToken" class="form-control" />
+        <!-- Bloco Evolution API -->
+        <div id="evolutionApiSection" style="background: rgba(40, 167, 69, 0.06); padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid rgba(40, 167, 69, 0.25);">
+            <h4 style="color: #69db7c; font-size: 1rem; margin-bottom: 0.5rem;"><i class="bi bi-broadcast"></i> Configurações da Evolution API (Recomendado para 0 Custos)</h4>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+                Conecte seu próprio número de WhatsApp via QR Code na Evolution API (local ou VPS) e envie mensagens sem pagar nada por envio.
+            </p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem;">
+                <div class="form-group">
+                    <label asp-for="EvolutionApiUrl" class="form-label">URL da Evolution API</label>
+                    <input asp-for="EvolutionApiUrl" class="form-control" placeholder="http://localhost:8080 ou https://sua-api.com" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="EvolutionInstanceName" class="form-label">Nome da Instância</label>
+                    <input asp-for="EvolutionInstanceName" class="form-control" placeholder="barbershop" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="EvolutionApiKey" class="form-label">Chave de API (apikey)</label>
+                    <input asp-for="EvolutionApiKey" class="form-control" type="password" placeholder="BarberShopEvolutionKey2026" />
+                </div>
             </div>
         </div>
 
-        <div class="form-group">
-            <label asp-for="MetaAccessToken" class="form-label">Access Token Permanente (Meta Cloud API)</label>
-            <input asp-for="MetaAccessToken" class="form-control" type="password" placeholder="EAABw..." />
-            <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
-                Armazenado no banco de forma restrita e nunca exposto aos clientes.
-            </small>
+        <!-- Bloco Meta Cloud API -->
+        <div id="metaCloudSection" style="background: rgba(255, 255, 255, 0.03); padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.08);">
+            <h4 style="color: var(--text-light); font-size: 1rem; margin-bottom: 0.5rem;"><i class="bi bi-meta"></i> Credenciais Meta Cloud API (Oficial)</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 1rem;">
+                <div class="form-group">
+                    <label asp-for="MetaPhoneNumberId" class="form-label">Phone Number ID (Meta Developer)</label>
+                    <input asp-for="MetaPhoneNumberId" class="form-control" placeholder="Ex: 104598239012345" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="MetaBusinessAccountId" class="form-label">WhatsApp Business Account ID (WABA)</label>
+                    <input asp-for="MetaBusinessAccountId" class="form-control" placeholder="Ex: 109283019283019" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="MetaApiVersion" class="form-label">Versão da Graph API</label>
+                    <input asp-for="MetaApiVersion" class="form-control" placeholder="v21.0" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="WebhookVerifyToken" class="form-label">Token de Verificação do Webhook</label>
+                    <input asp-for="WebhookVerifyToken" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MetaAccessToken" class="form-label">Access Token Permanente (Meta Cloud API)</label>
+                <input asp-for="MetaAccessToken" class="form-control" type="password" placeholder="EAABw..." />
+                <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                    Armazenado no banco de forma restrita e nunca exposto aos clientes.
+                </small>
+            </div>
         </div>
     </div>
 
@@ -228,3 +262,29 @@
         </table>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const select = document.getElementById("selectProvider");
+            const evolutionSec = document.getElementById("evolutionApiSection");
+            const metaSec = document.getElementById("metaCloudSection");
+
+            function toggleSections() {
+                if (!select || !evolutionSec || !metaSec) return;
+                if (select.value === "EvolutionApi") {
+                    evolutionSec.style.display = "block";
+                    metaSec.style.display = "none";
+                } else {
+                    evolutionSec.style.display = "none";
+                    metaSec.style.display = "block";
+                }
+            }
+
+            if (select) {
+                select.addEventListener("change", toggleSections);
+                toggleSections();
+            }
+        });
+    </script>
+}

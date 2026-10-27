@@ -1,0 +1,17 @@
+{
+  "name": "barbershop-whatsapp-service",
+  "version": "1.0.0",
+  "description": "Servidor de WhatsApp local compatível com Evolution API",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.16",
+    "express": "^4.21.2",
+    "pino": "^9.6.0",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0"
+  }
+}

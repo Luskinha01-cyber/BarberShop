@@ -7,19 +7,28 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Banco de Dados SQL Server
+// 1. Banco de Dados (Suporte flexível a SQLite e SQL Server)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-    ?? "Server=(localdb)\\MSSQLLocalDB;Database=BarberShopDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
+    ?? "Data Source=barbershop.db";
+var databaseProvider = builder.Configuration.GetValue<string>("DatabaseProvider") 
+    ?? (connectionString.Contains(".db") ? "Sqlite" : "SqlServer");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(connectionString, sqlOptions =>
+    if (databaseProvider.Equals("Sqlite", StringComparison.OrdinalIgnoreCase))
     {
-        sqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 5,
-            maxRetryDelay: TimeSpan.FromSeconds(30),
-            errorNumbersToAdd: null);
-    });
+        options.UseSqlite(connectionString);
+    }
+    else
+    {
+        options.UseSqlServer(connectionString, sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+        });
+    }
 });
 
 // 2. ASP.NET Core Identity
@@ -62,10 +71,15 @@ builder.Services.AddHttpClient("WhatsAppCloudApi", client =>
 {
     client.Timeout = TimeSpan.FromSeconds(15);
 });
+builder.Services.AddHttpClient("EvolutionApi", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(15);
+});
 
 builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
 builder.Services.AddScoped<FakeWhatsAppNotificationService>();
 builder.Services.AddScoped<WhatsAppCloudApiService>();
+builder.Services.AddScoped<EvolutionApiService>();
 builder.Services.AddScoped<IWhatsAppNotificationService, WhatsAppNotificationDispatcher>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 

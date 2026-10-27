@@ -72,6 +72,10 @@ public class SettingsController : Controller
         settings.MetaApiVersion = string.IsNullOrWhiteSpace(model.MetaApiVersion) ? "v21.0" : model.MetaApiVersion;
         settings.MetaBusinessAccountId = model.MetaBusinessAccountId;
         settings.WebhookVerifyToken = model.WebhookVerifyToken;
+        settings.WhatsAppProvider = string.IsNullOrWhiteSpace(model.WhatsAppProvider) ? "EvolutionApi" : model.WhatsAppProvider;
+        settings.EvolutionApiUrl = model.EvolutionApiUrl;
+        settings.EvolutionApiKey = model.EvolutionApiKey;
+        settings.EvolutionInstanceName = model.EvolutionInstanceName;
 
         await _context.SaveChangesAsync();
         TempData["SuccessMessage"] = "Configurações da barbearia atualizadas com sucesso!";

@@ -16,8 +16,12 @@ public static class SeedData
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        // Aplica migrations pendentes se o banco for relacional
-        if (context.Database.IsRelational())
+        // Cria o banco ou aplica migrations pendentes
+        if (context.Database.IsSqlite())
+        {
+            await context.Database.EnsureCreatedAsync();
+        }
+        else if (context.Database.IsRelational())
         {
             await context.Database.MigrateAsync();
         }
@@ -51,7 +55,11 @@ public static class SeedData
                 MetaPhoneNumberId = configuration["WhatsApp:PhoneNumberId"],
                 MetaAccessToken = configuration["WhatsApp:AccessToken"],
                 MetaApiVersion = configuration["WhatsApp:ApiVersion"] ?? "v21.0",
-                MetaBusinessAccountId = configuration["WhatsApp:BusinessAccountId"]
+                MetaBusinessAccountId = configuration["WhatsApp:BusinessAccountId"],
+                WhatsAppProvider = configuration["WhatsApp:Provider"] ?? "EvolutionApi",
+                EvolutionApiUrl = configuration["WhatsApp:EvolutionApi:ApiUrl"] ?? "http://localhost:8080",
+                EvolutionApiKey = configuration["WhatsApp:EvolutionApi:ApiKey"] ?? "BarberShopEvolutionKey2026",
+                EvolutionInstanceName = configuration["WhatsApp:EvolutionApi:InstanceName"] ?? "barbershop"
             });
             await context.SaveChangesAsync();
         }

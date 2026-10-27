@@ -8,18 +8,21 @@ public class WhatsAppNotificationDispatcher : IWhatsAppNotificationService
 {
     private readonly ApplicationDbContext _context;
     private readonly FakeWhatsAppNotificationService _fakeService;
-    private readonly WhatsAppCloudApiService _realService;
+    private readonly WhatsAppCloudApiService _metaService;
+    private readonly EvolutionApiService _evolutionService;
     private readonly ILogger<WhatsAppNotificationDispatcher> _logger;
 
     public WhatsAppNotificationDispatcher(
         ApplicationDbContext context,
         FakeWhatsAppNotificationService fakeService,
-        WhatsAppCloudApiService realService,
+        WhatsAppCloudApiService metaService,
+        EvolutionApiService evolutionService,
         ILogger<WhatsAppNotificationDispatcher> logger)
     {
         _context = context;
         _fakeService = fakeService;
-        _realService = realService;
+        _metaService = metaService;
+        _evolutionService = evolutionService;
         _logger = logger;
     }
 
@@ -34,8 +37,14 @@ public class WhatsAppNotificationDispatcher : IWhatsAppNotificationService
             return _fakeService;
         }
 
+        if (string.Equals(settings?.WhatsAppProvider, "EvolutionApi", StringComparison.OrdinalIgnoreCase))
+        {
+            _logger.LogInformation("[WHATSAPP DISPATCHER] Roteando para EvolutionApiService (Evolution API).");
+            return _evolutionService;
+        }
+
         _logger.LogInformation("[WHATSAPP DISPATCHER] Roteando para WhatsAppCloudApiService (Meta Cloud API oficial).");
-        return _realService;
+        return _metaService;
     }
 
     public async Task<WhatsAppNotification?> SendBookingConfirmationAsync(Appointment appointment)

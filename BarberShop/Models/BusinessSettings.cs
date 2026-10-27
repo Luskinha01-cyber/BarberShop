@@ -48,4 +48,16 @@ public class BusinessSettings
 
     [MaxLength(100)]
     public string? WebhookVerifyToken { get; set; } = "BarberShopSecretToken2026";
+
+    [MaxLength(30)]
+    public string WhatsAppProvider { get; set; } = "EvolutionApi";
+
+    [MaxLength(250)]
+    public string? EvolutionApiUrl { get; set; } = "http://localhost:8080";
+
+    [MaxLength(200)]
+    public string? EvolutionApiKey { get; set; } = "BarberShopEvolutionKey2026";
+
+    [MaxLength(100)]
+    public string? EvolutionInstanceName { get; set; } = "barbershop";
 }
