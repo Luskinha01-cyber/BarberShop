@@ -5,20 +5,20 @@ echo ======================================================
 echo    Iniciando BarberShop e Gateway do WhatsApp
 echo ======================================================
 
-set DOTNET_ROOT=%LOCALAPPDATA%\Microsoft\dotnet
-set PATH=%LOCALAPPDATA%\Microsoft\dotnet;%PATH%
+set "DOTNET_ROOT=%LOCALAPPDATA%\Microsoft\dotnet"
+set "PATH=%LOCALAPPDATA%\Microsoft\dotnet;%PATH%"
 
 echo [1/2] Iniciando Gateway do WhatsApp (Porta 8080)...
-start "WhatsApp Gateway (Porta 8080)" cmd /k "cd /d \"%~dp0whatsapp-service\" && node server.js"
+start "WhatsApp Gateway (Porta 8080)" /d "%~dp0whatsapp-service" cmd /k "node server.js"
 
 timeout /t 2 /nobreak >nul
 
 echo [2/2] Iniciando BarberShop Web (Porta 5296)...
-start "BarberShop Web (Porta 5296)" cmd /k "cd /d \"%~dp0BarberShop\" && dotnet run --launch-profile http"
+start "BarberShop Web (Porta 5296)" /d "%~dp0BarberShop" cmd /k "dotnet run --launch-profile http"
 
 echo.
 echo ======================================================
-echo    Serviços em execução!
+echo    Servicos em execucao!
 echo ======================================================
 echo  - Escanear WhatsApp:  http://localhost:8080
 echo  - Sistema BarberShop: http://localhost:5296
